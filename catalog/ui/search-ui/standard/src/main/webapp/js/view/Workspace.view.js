@@ -224,20 +224,19 @@ define([
                 wreqr.vent.trigger('workspace:results', dir.forward, this.model.get('metacards'));
             },
             onRender: function() {
+                var searches = this.model.get('searches');
+                var editing = this.model.get('editing');
+                if (searches && searches.length) {
+                    _.each(searches.models, function(search) {
+                        search.set('editing', editing);
+                    });
+                }
 
                 this.workspaceSearchPanelRegion.show(new WorkspaceView.SearchList({collection: this.model.get('searches')}));
             },
             editMode: function() {
                 this.model.set('editing', true, {silent: true});
                 this.undoManager.startTracking();
-                var searches = this.model.get('searches');
-                                var editing = this.model.get('editing');
-                                if (searches && searches.length) {
-                                    _.each(searches.models, function(search) {
-                                        search.set('editing', editing);
-                                    });
-                                }
-
                 this.render();
             },
             doneMode: function() {
@@ -245,13 +244,6 @@ define([
                 this.undoManager.clear();
 
                 this.model.unset('editing', {silent: true});
-                var searches = this.model.get('searches');
-                                var editing = this.model.get('editing');
-                                if (searches && searches.length) {
-                                    _.each(searches.models, function(search) {
-                                        search.set('editing', editing);
-                                    });
-                                }
 
                 this.render();
             },
@@ -261,13 +253,6 @@ define([
                 this.undoManager.clear();
 
                 this.model.unset('editing', {silent: true});
-                var searches = this.model.get('searches');
-                                var editing = this.model.get('editing');
-                                if (searches && searches.length) {
-                                    _.each(searches.models, function(search) {
-                                        search.set('editing', editing);
-                                    });
-                                }
 
                 this.render();
             }
