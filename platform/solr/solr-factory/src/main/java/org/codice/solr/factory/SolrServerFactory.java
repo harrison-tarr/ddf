@@ -88,7 +88,7 @@ public final class SolrServerFactory {
 
     public static final String DEFAULT_SOLR_XML = "solr.xml";
 
-    private static final Integer MAX_RETRY_COUNT = 10;
+    private static final Integer MAX_RETRY_COUNT = 11;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrServerFactory.class);
 
@@ -191,14 +191,14 @@ public final class SolrServerFactory {
                 }
                 logger.error("DDF-1710: Exception --> ", e);
                 try {
-                    long waitTime = (long) Math.pow(2, retryCount) * 100;
+                    long waitTime = (long) Math.pow(2, Math.min(retryCount, MAX_RETRY_COUNT)) * 50;
                     logger.debug("Connection failed, entering grace period for "
                             + waitTime + "seconds.");
                     wait(waitTime);
                 } catch (InterruptedException ie) {
                     logger.error("Exception while waiting.", ie);
                 }
-                return (retryCount <= MAX_RETRY_COUNT);
+                return true;
             }
         };
 
