@@ -18,6 +18,8 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -26,16 +28,22 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpRequest;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.HttpRequestRetryHandler;
+import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.protocol.HttpContext;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
@@ -79,6 +87,8 @@ public final class SolrServerFactory {
     public static final String IMMEMORY_SOLRCONFIG_XML = "solrconfig-inmemory.xml";
 
     public static final String DEFAULT_SOLR_XML = "solr.xml";
+
+    private static final Integer MAX_RETRY_COUNT = 10;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrServerFactory.class);
 
@@ -159,10 +169,42 @@ public final class SolrServerFactory {
         SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(
                 getSslContext(), getProtocols(), getCipherSuites(),
                 SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
+        HttpRequestRetryHandler solrRetryHandler = new HttpRequestRetryHandler() {
+            private final Logger logger = LoggerFactory.getLogger(HttpRequestRetryHandler.class);
+
+            @Override
+            public boolean retryRequest(IOException e, int retryCount, HttpContext httpContext) {
+                if (e instanceof InterruptedIOException) {
+                    logger.error("DDF-1710: Timeout.");
+                }
+                if (e instanceof UnknownHostException) {
+                    logger.error("DDF-1710: Unknown host.");
+                }
+                if (e instanceof SSLException) {
+                    logger.error("DDF-1710: SSL handshake exception.");
+                }
+                HttpClientContext clientContext = HttpClientContext.adapt(httpContext);
+                HttpRequest request = clientContext.getRequest();
+                if (!(request instanceof HttpEntityEnclosingRequest)) {
+                    logger.error("DDF-1710: Request is idempotent.");
+                    return true;
+                }
+                logger.error("DDF-1710: Exception --> ", e);
+                try {
+                    long waitTime = (long) Math.pow(2, retryCount) * 100;
+                    logger.debug("Connection failed, entering grace period for "
+                            + waitTime + "seconds.");
+                    wait(waitTime);
+                } catch (InterruptedException ie) {
+                    logger.error("Exception while waiting.", ie);
+                }
+                return (retryCount <= MAX_RETRY_COUNT);
+            }
+        };
 
         return HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory)
                 .setDefaultCookieStore(new BasicCookieStore()).setMaxConnTotal(128)
-                .setMaxConnPerRoute(32).build();
+                .setMaxConnPerRoute(32).setRetryHandler(solrRetryHandler).build();
     }
 
     private static String[] getProtocols() {
