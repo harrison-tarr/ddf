@@ -175,21 +175,20 @@ public final class SolrServerFactory {
             @Override
             public boolean retryRequest(IOException e, int retryCount, HttpContext httpContext) {
                 if (e instanceof InterruptedIOException) {
-                    logger.error("DDF-1710: Timeout.");
+                    logger.error("Connection timeout.");
                 }
                 if (e instanceof UnknownHostException) {
-                    logger.error("DDF-1710: Unknown host.");
+                    logger.error("Unknown host.");
                 }
                 if (e instanceof SSLException) {
-                    logger.error("DDF-1710: SSL handshake exception.");
+                    logger.error("SSL handshake exception.");
                 }
                 HttpClientContext clientContext = HttpClientContext.adapt(httpContext);
                 HttpRequest request = clientContext.getRequest();
                 if (!(request instanceof HttpEntityEnclosingRequest)) {
-                    logger.error("DDF-1710: Request is idempotent.");
+                    logger.error("Connection failed. Request is idempotent.");
                     return true;
                 }
-                logger.error("DDF-1710: Exception --> ", e);
                 try {
                     long waitTime = (long) Math.pow(2, Math.min(retryCount, MAX_RETRY_COUNT)) * 50;
                     logger.debug("Connection failed, entering grace period for "
