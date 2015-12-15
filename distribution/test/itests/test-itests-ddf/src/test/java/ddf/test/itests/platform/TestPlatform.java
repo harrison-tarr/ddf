@@ -36,9 +36,9 @@ import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.codice.ddf.configuration.store.ConfigurationFileException;
 import org.codice.ddf.configuration.store.felix.FelixPersistenceStrategy;
-import org.codice.ddf.persistence.PersistentStore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -66,7 +66,7 @@ public class TestPlatform extends AbstractIntegrationTest {
 
     private static final String EXPORT_COMMAND = "platform:config-export";
 
-    private static final String SEARCH_COMMAND = "catalog:search -u admin\nadmin";
+    private static final String SEARCH_COMMAND = "catalog:search";
 
     private static final String CONSOLE_PASSWORD = "admin";
 
@@ -670,7 +670,8 @@ public class TestPlatform extends AbstractIntegrationTest {
 
         //Bring up solr server factory, make sure it's in grace period
         getServiceManager().startBundle("solr-factory");
-        assertThat("Search should fail.", console.runCommand(SEARCH_COMMAND),
+        assertThat("Search should fail.", console.runCommand(SEARCH_COMMAND,
+                new RolePrincipal("admin")),
                 containsString(CONSOLE_TIMEOUT));
 
         //Then bring up embedded solr server
