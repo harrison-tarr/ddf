@@ -64,10 +64,11 @@ public class TestPlatform extends AbstractIntegrationTest {
 
     private static final String EXPORT_COMMAND = "platform:config-export";
 
-    private static final String SEARCH_COMMAND = "catalog:search -u admin";
+    private static final String SEARCH_COMMAND = "catalog:search -u admin\nadmin";
 
     private static final String CONSOLE_PASSWORD = "admin";
 
+    private static final String CONSOLE_TIMEOUT = "SHELL COMMAND TIMED OUT";
     /**
      * Class that provides utility and assertion methods for a Managed Service Felix configuration
      * file.
@@ -667,17 +668,15 @@ public class TestPlatform extends AbstractIntegrationTest {
 
         //Bring up solr server factory, make sure it's in grace period
         getServiceManager().startBundle("solr-factory");
-        console.runCommand(SEARCH_COMMAND);
-        assertThat("Search should fail.", console.runCommand(CONSOLE_PASSWORD),
-                containsString("Test!"));
+        assertThat("Search should fail.", console.runCommand(SEARCH_COMMAND),
+                containsString(CONSOLE_TIMEOUT));
 
         //Then bring up embedded solr server
         getServiceManager().startBundle("platform-solr-server-standalone");
 
         //Verify that they're both started successfully now
-        console.runCommand(SEARCH_COMMAND);
         assertThat("Both bundles should have successfully started",
-                console.runCommand(CONSOLE_PASSWORD), containsString(
-                        "Test!"));
+                console.runCommand(SEARCH_COMMAND), containsString(
+                        "REPLACETHIS"));
     }
 }
