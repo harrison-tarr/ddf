@@ -43,6 +43,7 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.osgi.framework.BundleException;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +63,8 @@ public class TestPlatform extends AbstractIntegrationTest {
     private static KarafConsole console;
 
     private static final String EXPORT_COMMAND = "platform:config-export";
+
+    private static final String SEARCH_COMMAND = "catalog:search";
 
     /**
      * Class that provides utility and assertion methods for a Managed Service Felix configuration
@@ -651,5 +654,26 @@ public class TestPlatform extends AbstractIntegrationTest {
         assertThat(String.format("Files missing in %s directory", path.toString()),
                 keystoreFiles,
                 arrayContainingInAnyOrder(fileNames));
+    }
+
+    @Test
+    public void testSolrServerFactoryGracePeriod() throws BundleException {
+        //Bring down solr server factory and embedded solr server bundles
+
+        getServiceManager().stopBundle("solr-factory");
+        getServiceManager().stopBundle("platform-solr-server-standalone");
+
+        //Bring up solr server factory, make sure it's in grace period
+        getServiceManager().startBundle("solr-factory");
+        assertThat("Search should fail.", console.runCommand(SEARCH_COMMAND),
+                containsString("Test!"));
+
+        //Then bring up embedded solr server
+        getServiceManager().startBundle("platform-solr-server-standalone");
+
+        //Verify that they're both started successfully now
+        assertThat("Both bundles should have successfully started",
+                console.runCommand(SEARCH_COMMAND), containsString(
+                        "Test!"));
     }
 }
