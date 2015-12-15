@@ -33,10 +33,12 @@ import java.nio.file.Paths;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.codice.ddf.configuration.store.ConfigurationFileException;
 import org.codice.ddf.configuration.store.felix.FelixPersistenceStrategy;
+import org.codice.ddf.persistence.PersistentStore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -675,8 +677,8 @@ public class TestPlatform extends AbstractIntegrationTest {
         getServiceManager().startBundle("platform-solr-server-standalone");
 
         //Verify that they're both started successfully now
-        assertThat("Both bundles should have successfully started",
-                console.runCommand(SEARCH_COMMAND), containsString(
-                        "REPLACETHIS"));
+        expect("Both bundles should have started successfully, and command should succeed.")
+                .within(5, TimeUnit.MINUTES)
+                .until(() -> console.runCommand(SEARCH_COMMAND), containsString("REPLACETHIS"));
     }
 }
