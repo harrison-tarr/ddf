@@ -187,7 +187,6 @@ public final class SolrServerFactory {
                 HttpRequest request = clientContext.getRequest();
                 if (!(request instanceof HttpEntityEnclosingRequest)) {
                     logger.error("Connection failed. Request is idempotent.");
-                    return true;
                 }
                 try {
                     long waitTime = (long) Math.pow(2, Math.min(retryCount, MAX_RETRY_COUNT)) * 50;
