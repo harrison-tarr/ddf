@@ -680,6 +680,7 @@ public class TestPlatform extends AbstractIntegrationTest {
         //Verify that they're both started successfully now
         expect("Both bundles should have started successfully, and command should succeed.")
                 .within(5, TimeUnit.MINUTES)
-                .until(() -> console.runCommand(SEARCH_COMMAND), containsString("REPLACETHIS"));
+                .until(() -> console.runCommand(SEARCH_COMMAND,
+                        new RolePrincipal("admin")), containsString("REPLACETHIS"));
     }
 }
