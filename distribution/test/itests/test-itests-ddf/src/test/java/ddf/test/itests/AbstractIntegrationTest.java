@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Codice Foundation
- * <p/>
+ * <p>
  * This is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser
  * General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or any later version.
- * <p/>
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details. A copy of the GNU Lesser General Public License
@@ -109,6 +109,7 @@ public abstract class AbstractIntegrationTest {
     public static class DynamicPort {
 
         private final String systemProperty;
+
         private final Integer ordinal;
 
         public DynamicPort(Integer ordinal) {
@@ -197,13 +198,22 @@ public abstract class AbstractIntegrationTest {
         }
 
     }
-    public static final DynamicPort BASE_PORT = new DynamicPort("org.codice.ddf.system.basePort", 0);
-    public static final DynamicPort HTTP_PORT = new DynamicPort("org.codice.ddf.system.httpPort", 1);
-    public static final DynamicPort HTTPS_PORT = new DynamicPort(
-            "org.codice.ddf.system.httpsPort", 2);
+
+    public static final DynamicPort BASE_PORT = new DynamicPort("org.codice.ddf.system.basePort",
+            0);
+
+    public static final DynamicPort HTTP_PORT = new DynamicPort("org.codice.ddf.system.httpPort",
+            1);
+
+    public static final DynamicPort HTTPS_PORT = new DynamicPort("org.codice.ddf.system.httpsPort",
+            2);
+
     public static final DynamicPort DEFAULT_PORT = new DynamicPort("org.codice.ddf.system.port", 2);
+
     public static final DynamicPort SSH_PORT = new DynamicPort(3);
+
     public static final DynamicPort RMI_SERVER_PORT = new DynamicPort(4);
+
     public static final DynamicPort RMI_REG_PORT = new DynamicPort(5);
 
     public static final DynamicUrl SERVICE_ROOT = new DynamicUrl(SECURE_ROOT, HTTPS_PORT,
@@ -276,7 +286,7 @@ public abstract class AbstractIntegrationTest {
      */
     @org.ops4j.pax.exam.Configuration
     public Option[] config() throws URISyntaxException, IOException {
-        basePort = findPortNumber(20000);
+        basePort = findPortNumber(25000);
         return combineOptions(configureCustom(), configureDistribution(), configurePaxExam(),
                 configureAdditionalBundles(), configureConfigurationPorts(), configureMavenRepos(),
                 configureSystemSettings(), configureVmOptions(), configureStartScript());
@@ -417,8 +427,8 @@ public abstract class AbstractIntegrationTest {
                 editConfigurationFilePut("etc/org.apache.karaf.management.cfg", "rmiServerPort",
                         RMI_SERVER_PORT.getPort()),
                 installStartupFile(getClass().getResourceAsStream("/hazelcast.xml"),
-                        "/etc/hazelcast.xml"), installStartupFile(getClass().getResourceAsStream(
-                                "/ddf.security.sts.client.configuration.config"),
+                        "/etc/hazelcast.xml"), installStartupFile(getClass()
+                                .getResourceAsStream("/ddf.security.sts.client.configuration.config"),
                         "/etc/ddf.security.sts.client.configuration.config"),
                 editConfigurationFilePut("etc/ddf.security.sts.client.configuration.config",
                         "address", "\"" + SECURE_ROOT + HTTPS_PORT.getPort()
@@ -430,15 +440,14 @@ public abstract class AbstractIntegrationTest {
 
     protected Option[] configureMavenRepos() {
         return options(editConfigurationFilePut("etc/org.ops4j.pax.url.mvn.cfg",
-                        "org.ops4j.pax.url.mvn.repositories",
-                        "http://repo1.maven.org/maven2@id=central,"
-                                + "http://oss.sonatype.org/content/repositories/snapshots@snapshots@noreleases@id=sonatype-snapshot,"
-                                + "http://oss.sonatype.org/content/repositories/ops4j-snapshots@snapshots@noreleases@id=ops4j-snapshot,"
-                                + "http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases@id=apache,"
-                                + "http://svn.apache.org/repos/asf/servicemix/m2-repo@id=servicemix,"
-                                + "http://repository.springsource.com/maven/bundles/release@id=springsource,"
-                                + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
-                                + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"),
+                "org.ops4j.pax.url.mvn.repositories", "http://repo1.maven.org/maven2@id=central,"
+                        + "http://oss.sonatype.org/content/repositories/snapshots@snapshots@noreleases@id=sonatype-snapshot,"
+                        + "http://oss.sonatype.org/content/repositories/ops4j-snapshots@snapshots@noreleases@id=ops4j-snapshot,"
+                        + "http://repository.apache.org/content/groups/snapshots-group@snapshots@noreleases@id=apache,"
+                        + "http://svn.apache.org/repos/asf/servicemix/m2-repo@id=servicemix,"
+                        + "http://repository.springsource.com/maven/bundles/release@id=springsource,"
+                        + "http://repository.springsource.com/maven/bundles/external@id=springsourceext,"
+                        + "http://oss.sonatype.org/content/repositories/releases/@id=sonatype"),
                 when(System.getProperty("maven.repo.local") != null).useOptions(
                         editConfigurationFilePut("etc/org.ops4j.pax.url.mvn.cfg",
                                 "org.ops4j.pax.url.mvn.localRepository",
@@ -447,8 +456,8 @@ public abstract class AbstractIntegrationTest {
 
     protected Option[] configureSystemSettings() {
         return options(when(System.getProperty(TEST_LOGLEVEL_PROPERTY) != null).useOptions(
-                        systemProperty(TEST_LOGLEVEL_PROPERTY)
-                                .value(System.getProperty(TEST_LOGLEVEL_PROPERTY, ""))),
+                systemProperty(TEST_LOGLEVEL_PROPERTY)
+                        .value(System.getProperty(TEST_LOGLEVEL_PROPERTY, ""))),
                 when(Boolean.getBoolean("isDebugEnabled")).useOptions(
                         vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005")),
                 when(System.getProperty("maven.repo.local") != null).useOptions(
