@@ -25,6 +25,7 @@ import org.codice.solr.factory.ConfigurationFileProxy;
 import org.codice.solr.factory.ConfigurationStore;
 import org.codice.solr.factory.SolrServerFactory;
 import org.joda.time.DateTime;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.opengis.filter.Filter;
 import org.slf4j.Logger;
@@ -69,21 +70,35 @@ public abstract class SolrProviderTestCase {
 
     protected static SolrCatalogProvider provider = null;
 
+    private static String threadPoolSize;
+
     @BeforeClass
     public static void setup() throws Exception {
+        threadPoolSize = System.getProperty("org.codice.ddf.system.threadPoolSize");
+        System.setProperty("org.codice.ddf.system.threadPoolSize", "128");
         LOGGER.info("RUNNING one-time setup.");
-        ConfigurationStore.getInstance().setInMemory(true);
-        ConfigurationStore.getInstance().setForceAutoCommit(true);
+        ConfigurationStore.getInstance()
+                .setInMemory(true);
+        ConfigurationStore.getInstance()
+                .setForceAutoCommit(true);
         ConfigurationFileProxy configurationFileProxy = new ConfigurationFileProxy(
                 ConfigurationStore.getInstance());
 
-        provider = new SolrCatalogProvider(SolrServerFactory
-                .getEmbeddedSolrServer("solrconfig-inmemory.xml", "schema.xml", configurationFileProxy),
-                new GeotoolsFilterAdapterImpl(), new SolrFilterDelegateFactoryImpl());
+        provider = new SolrCatalogProvider(SolrServerFactory.getEmbeddedSolrServer(
+                "solrconfig-inmemory.xml",
+                "schema.xml",
+                configurationFileProxy),
+                new GeotoolsFilterAdapterImpl(),
+                new SolrFilterDelegateFactoryImpl());
 
         // Mask the id, this is something that the CatalogFramework would
         // usually do
         provider.setId(MASKED_ID);
+    }
+
+    @AfterClass
+    public static void teardown() {
+        System.setProperty("org.codice.ddf.system.threadPoolSize", threadPoolSize);
     }
 
     protected static void messageBreak(String string) {

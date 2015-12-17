@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -260,7 +261,12 @@ public class SolrCache implements SolrCacheMBean {
                     LOGGER.info("Shutdown complete.");
                 }
 
-                server = SolrServerFactory.getHttpSolrServer(url, METACARD_CACHE_CORE_NAME);
+                try {
+                    // TODO: is it ok to block until the solr server is available here?
+                    server = SolrServerFactory.getHttpSolrServer(url, METACARD_CACHE_CORE_NAME).get();
+                } catch (InterruptedException | ExecutionException e) {
+                    LOGGER.error("Failed to get solr server from future", e);
+                }
                 client = new CacheSolrMetacardClient(this.server, filterAdapter,
                         solrFilterDelegateFactory);
             }

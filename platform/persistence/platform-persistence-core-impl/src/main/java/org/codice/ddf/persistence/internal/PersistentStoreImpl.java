@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -283,12 +284,19 @@ public class PersistentStoreImpl implements PersistentStore {
         }
 
         // Must specify shard in URL so proper core is used
-        SolrServer coreSolrServer = SolrServerFactory
-                .getHttpSolrServer(solrUrl.getResolvedString(), storeName);
-        coreSolrServers.put(storeName, coreSolrServer);
+        SolrServer coreSolrServer = null;
+        try {
+            // TODO: is it ok to block until the solr server is available here?
+            coreSolrServer = SolrServerFactory.getHttpSolrServer(solrUrl.getResolvedString(),
+                    storeName)
+                    .get();
+            coreSolrServers.put(storeName, coreSolrServer);
 
-        LOGGER.trace("EXITING: getSolrCore");
+            LOGGER.trace("EXITING: getSolrCore");
 
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.warn("Error getting solr server from future", e);
+        }
         return coreSolrServer;
     }
 
