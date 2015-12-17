@@ -182,7 +182,7 @@
                     <version>2.18</version>
                     <configuration>
                         <parallel>classes</parallel>
-                        <threadCount>4</threadCount>
+                        <threadCount>5</threadCount>
                         <forkMode>perthread</forkMode>
                         <reuseForks>false</reuseForks>
                         <argLine>${argLine} -Djava.awt.headless=true -noverify -Xmx1024m -XX:MaxPermSize=256m</argLine>
