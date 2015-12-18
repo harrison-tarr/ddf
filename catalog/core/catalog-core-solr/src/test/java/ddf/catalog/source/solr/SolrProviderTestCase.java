@@ -74,17 +74,16 @@ public abstract class SolrProviderTestCase {
 
     @BeforeClass
     public static void setup() throws Exception {
+        System.out.println("Started setup()");
         threadPoolSize = System.getProperty("org.codice.ddf.system.threadPoolSize");
         System.setProperty("org.codice.ddf.system.threadPoolSize", "128");
         LOGGER.info("RUNNING one-time setup.");
-        LOGGER.error(">>>> Got to point 0.");
         ConfigurationStore.getInstance()
                 .setInMemory(true);
         ConfigurationStore.getInstance()
                 .setForceAutoCommit(true);
         ConfigurationFileProxy configurationFileProxy = new ConfigurationFileProxy(
                 ConfigurationStore.getInstance());
-        LOGGER.error(">>>> Got to point 1.");
 
         provider = new SolrCatalogProvider(SolrServerFactory.getEmbeddedSolrServer(
                 "solrconfig-inmemory.xml",
@@ -92,17 +91,17 @@ public abstract class SolrProviderTestCase {
                 configurationFileProxy),
                 new GeotoolsFilterAdapterImpl(),
                 new SolrFilterDelegateFactoryImpl());
-        LOGGER.error(">>>> Got to point 2.");
 
         // Mask the id, this is something that the CatalogFramework would
         // usually do
         provider.setId(MASKED_ID);
-        LOGGER.error(">>>> Go to point 3.");
     }
 
     @AfterClass
     public static void teardown() {
-        System.setProperty("org.codice.ddf.system.threadPoolSize", threadPoolSize);
+        if (threadPoolSize != null) {
+            System.setProperty("org.codice.ddf.system.threadPoolSize", threadPoolSize);
+        }
     }
 
     protected static void messageBreak(String string) {
