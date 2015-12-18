@@ -96,19 +96,30 @@ public final class SolrServerFactory {
 
     private static final Integer MAX_RETRY_COUNT = 11;
 
+    private static final Integer THREAD_POOL_DEFAULT_SIZE = 128;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SolrServerFactory.class);
 
     private static SystemBaseUrl systemBaseUrl = new SystemBaseUrl();
 
-    private static ExecutorService pool =
-            Executors.newFixedThreadPool(Integer.parseInt(System.getProperty(
-                    "org.codice.ddf.system.threadPoolSize")));
+    private static ExecutorService pool = getThreadPool();
 
     /**
      * Hiding constructor
      */
     private SolrServerFactory() {
 
+    }
+    //TODO: Fix this, get the system properties to populate
+    private static ExecutorService getThreadPool() {
+        Integer threadPoolSize;
+        try {
+            threadPoolSize = Integer.parseInt(System.getProperty(
+                    "org.codice.ddf.system.threadPoolSize"));
+        } catch (NumberFormatException e) {
+            return Executors.newFixedThreadPool(THREAD_POOL_DEFAULT_SIZE);
+        }
+        return Executors.newFixedThreadPool(threadPoolSize);
     }
 
     public static String getDefaultHttpsAddress() {

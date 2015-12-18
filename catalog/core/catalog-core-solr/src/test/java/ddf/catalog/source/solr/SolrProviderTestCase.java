@@ -102,6 +102,7 @@ public abstract class SolrProviderTestCase {
 
     @AfterClass
     public static void teardown() {
+        //TODO: Fix this, get the system properties to populate
         if (threadPoolSize != null) {
             System.setProperty("org.codice.ddf.system.threadPoolSize", threadPoolSize);
         }
