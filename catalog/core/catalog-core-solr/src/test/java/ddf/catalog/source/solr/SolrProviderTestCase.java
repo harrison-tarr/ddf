@@ -15,10 +15,15 @@ package ddf.catalog.source.solr;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 import org.codice.solr.factory.ConfigurationFileProxy;
@@ -66,6 +71,10 @@ public abstract class SolrProviderTestCase {
 
     private static final int A_LITTLE_WHILE = TIME_STEP_10SECONDS;
 
+    private static final String SYSTEM_PROPERTIES_FILE = "system.properties";
+
+    private static final String KARAF_ETC = "karaf.etc";
+
     protected static TestSolrFilterBuilder filterBuilder = new TestSolrFilterBuilder();
 
     protected static SolrCatalogProvider provider = null;
@@ -74,7 +83,6 @@ public abstract class SolrProviderTestCase {
 
     @BeforeClass
     public static void setup() throws Exception {
-        System.out.println("Started setup()");
         threadPoolSize = System.getProperty("org.codice.ddf.system.threadPoolSize");
         System.setProperty("org.codice.ddf.system.threadPoolSize", "128");
         LOGGER.info("RUNNING one-time setup.");
