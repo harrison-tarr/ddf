@@ -86,6 +86,8 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
 
     private FilterAdapter filterAdapter;
 
+    private boolean firstUse;
+
     private SolrFilterDelegateFactory solrFilterDelegateFactory;
 
     private DynamicSchemaResolver resolver;
@@ -103,6 +105,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
 
         this.filterAdapter = filterAdapter;
         this.server = server;
+        this.firstUse = true;
         this.solrFilterDelegateFactory = solrFilterDelegateFactory;
         this.resolver = resolver;
     }
@@ -248,6 +251,7 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
 
                 updateServer();
 
+                firstUse = true;
             }
         } else {
             // sets to null
@@ -263,21 +267,22 @@ public class SolrHttpCatalogProvider extends MaskableImpl implements CatalogProv
     }
 
     private CatalogProvider getProvider() {
-        if (isServerUp(getServer())) {
-            if (resolver == null) {
-                provider = new SolrCatalogProvider(getServer(),
-                        filterAdapter,
-                        solrFilterDelegateFactory);
-            } else {
-                provider = new SolrCatalogProvider(getServer(),
-                        filterAdapter,
-                        solrFilterDelegateFactory,
-                        resolver);
+        if (firstUse) {
+            if (isServerUp(getServer())) {
+                if (resolver == null) {
+                    provider = new SolrCatalogProvider(getServer(), filterAdapter,
+                            solrFilterDelegateFactory);
+                } else {
+                    provider = new SolrCatalogProvider(getServer(), filterAdapter,
+                            solrFilterDelegateFactory, resolver);
+                }
+                provider.maskId(getId());
+                this.firstUse = false;
+                return provider;
             }
-            provider.maskId(getId());
-            return provider;
+            return new UnconfiguredCatalogProvider();
         }
-        return new UnconfiguredCatalogProvider();
+        return provider;
 
     }
 
