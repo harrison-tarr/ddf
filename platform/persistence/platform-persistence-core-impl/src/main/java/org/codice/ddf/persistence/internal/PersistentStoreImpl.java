@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
@@ -62,7 +63,8 @@ public class PersistentStoreImpl implements PersistentStore {
 
         LOGGER.debug("Setting solrUrl to {}", url);
         if (url != null) {
-            if (solrUrl == null || !StringUtils.equalsIgnoreCase(url.trim(), solrUrl.getResolvedString())) {
+            if (solrUrl == null || !StringUtils
+                    .equalsIgnoreCase(url.trim(), solrUrl.getResolvedString())) {
                 solrUrl = new PropertyResolver(url.trim());
 
                 List<SolrServer> servers = new ArrayList<>(coreSolrServers.values());
@@ -287,9 +289,9 @@ public class PersistentStoreImpl implements PersistentStore {
         SolrServer coreSolrServer = null;
         try {
             // TODO: is it ok to block until the solr server is available here?
-            coreSolrServer = SolrServerFactory.getHttpSolrServer(solrUrl.getResolvedString(),
-                    storeName)
-                    .get();
+            Future<SolrServer> coreSolrServerFuture = SolrServerFactory
+                    .getHttpSolrServer(solrUrl.getResolvedString(), storeName);
+            coreSolrServer = coreSolrServerFuture.get();
             coreSolrServers.put(storeName, coreSolrServer);
 
             LOGGER.trace("EXITING: getSolrCore");
