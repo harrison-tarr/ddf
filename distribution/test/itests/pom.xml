@@ -28,7 +28,7 @@
         <module>test-itests-ddf</module>
     </modules>
     <properties>
-        <pax.exam.version>4.8.0-SNAPSHOT</pax.exam.version>
+        <pax.exam.version>4.9.0-SNAPSHOT</pax.exam.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -182,7 +182,7 @@
                     <version>2.18</version>
                     <configuration>
                         <parallel>classes</parallel>
-                        <threadCount>5</threadCount>
+                        <threadCount>4</threadCount>
                         <forkMode>perthread</forkMode>
                         <reuseForks>false</reuseForks>
                         <argLine>${argLine} -Djava.awt.headless=true -noverify -Xmx1024m -XX:MaxPermSize=256m</argLine>
