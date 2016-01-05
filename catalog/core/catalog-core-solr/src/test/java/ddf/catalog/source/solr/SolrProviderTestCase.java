@@ -78,7 +78,7 @@ public abstract class SolrProviderTestCase {
                 ConfigurationStore.getInstance());
 
         provider = new SolrCatalogProvider(SolrServerFactory
-                .getEmbeddedSolrServer("solrconfig-inmemory.xml", "schema.xml", configurationFileProxy),
+                .getEmbeddedSolrServer("solrconfig-inmemory.xml", "schema_metacard.xml", configurationFileProxy),
                 new GeotoolsFilterAdapterImpl(), new SolrFilterDelegateFactoryImpl());
 
         // Mask the id, this is something that the CatalogFramework would

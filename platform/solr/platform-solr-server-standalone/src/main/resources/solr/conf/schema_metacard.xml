@@ -234,8 +234,18 @@
         <fieldType name="text_ws" class="solr.TextField" positionIncrementGap="100">
       <analyzer>
         <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+          <filter class="solr.PatternReplaceFilterFactory" pattern="^\p{Punct}*(.*?)\p{Punct}*$" replacement="$1"/>
+          <filter class="solr.LowerCaseFilterFactory"/>
       </analyzer>
     </fieldType>
+
+	<fieldType name="text_ws_has_case" class="solr.TextField" positionIncrementGap="100">
+        <analyzer>
+            <tokenizer class="solr.WhitespaceTokenizerFactory"/>
+              <filter class="solr.PatternReplaceFilterFactory" pattern="^\p{Punct}*(.*?)\p{Punct}*$" replacement="$1"/>
+        </analyzer>
+    </fieldType>
+
 
         <!-- A general text field that has reasonable, generic cross-language defaults:
             it tokenizes with StandardTokenizer, removes stop words from case-insensitive
@@ -464,7 +474,7 @@
                   />
       </analyzer>
     </fieldType>
-    
+
     <fieldtype name="phonetic" stored="false" indexed="true" class="solr.TextField">
       <analyzer>
         <tokenizer class="solr.StandardTokenizerFactory"/>
@@ -539,7 +549,7 @@
  <fields>
    <!-- Valid attributes for fields:
      name: mandatory - the name for the field
-     type: mandatory - the name of a previously defined type from the 
+     type: mandatory - the name of a previously defined type from the
        <types> section
      indexed: true if this field should be indexed (searchable or sortable)
      stored: true if this field should be retrievable
@@ -552,9 +562,9 @@
        given field.
        When using MoreLikeThis, fields used for similarity should be
        stored for best performance.
-     termPositions: Store position information with the term vector.  
+     termPositions: Store position information with the term vector.
        This will increase storage costs.
-     termOffsets: Store offset information with the term vector. This 
+     termOffsets: Store offset information with the term vector. This
        will increase storage costs.
      default: a value that should be used if no value is specified
        when adding a document.
@@ -566,11 +576,11 @@
           required="false"/>
    <field name="id_txt_tokenized_has_case" type="text_general_has_case" indexed="true"
           stored="false" required="false"/>
-   
-   <field name="metacard_type_name" type="string" indexed="true" stored="true" required="true"/>
-   
-   <field name="metacard_type_object" type="binary" indexed="false" stored="true" required="true"/>
+     <!-- OMIT
+        <field name="metacard_type_name" type="string" indexed="true" stored="true" required="true"/>
 
+        <field name="metacard_type_object" type="binary" indexed="false" stored="true" required="true"/>
+     -->
      <!-- Common metadata fields, named specifically to match up with
        SolrCell metadata when parsing rich documents such as Word, PDF.
        Some fields are multiValued only because Tika currently may return
@@ -603,43 +613,82 @@
           Longer patterns will be matched first.  if equal size patterns
           both match, the first appearing in the schema will be used.  -->
 
-     <dynamicField name="*_int" type="tint" indexed="true" stored="true"/>
-   
-   <dynamicField name="*_lng" type="tlong" indexed="true" stored="true"/>
-   
-   <dynamicField name="*_shr" type="tint" indexed="true" stored="true"/>
-   
-   <dynamicField name="*_flt" type="tfloat" indexed="true" stored="true"/>
-   
-   <dynamicField name="*_dbl" type="tdouble" indexed="true" stored="true"/>
+   <dynamicField name="*_int" type="tint" indexed="true" stored="true" multiValued="true"/>
 
-   <dynamicField name="*_tdt" type="tdate" indexed="true" stored="true"/>
-   
-   <dynamicField name="*_bln" type="boolean" indexed="true" stored="true"/>
-   
-   <dynamicField name="*_geo" type="string" indexed="false" stored="true"/>
+   <dynamicField name="*_lng" type="tlong" indexed="true" stored="true" multiValued="true"/>
 
-   <dynamicField name="*_geo_index" type="geohash" indexed="true" stored="false"/>
-   
-   <dynamicField name="*_txt" type="string" indexed="true" stored="true"/>
-   
-   <dynamicField name="*_xml" type="string" indexed="false" stored="true"/>
-   
-   <dynamicField name="*_txt_tokenized" type="text_general" indexed="true" stored="false"/>
-   
+   <dynamicField name="*_shr" type="tint" indexed="true" stored="true" multiValued="true"/>
+
+   <dynamicField name="*_flt" type="tfloat" indexed="true" stored="true" multiValued="true"/>
+
+   <dynamicField name="*_dbl" type="tdouble" indexed="true" stored="true" multiValued="true"/>
+
+   <dynamicField name="*_tdt" type="tdate" indexed="true" stored="true" multiValued="true"/>
+
+   <dynamicField name="*_bln" type="boolean" indexed="true" stored="true" multiValued="true"/>
+
+   <dynamicField name="*_geo" type="string" indexed="false" stored="true" multiValued="true"/>
+
+   <dynamicField name="*_geo_index" type="geohash" indexed="true" stored="false" multiValued="true"/>
+
+   <dynamicField name="*_txt" type="string" indexed="true" stored="true" multiValued="true"/>
+
+   <dynamicField name="*_txt_set" type="string" indexed="true" stored="true" multiValued="true"/>
+
+   <dynamicField name="*_txt_ws" type="text_ws" indexed="true" stored="false" multiValued="true"/>
+
+   <dynamicField name="*_txt_ws_has_case" type="text_ws_has_case" indexed="true" stored="false" multiValued="true"/>
+
+   <dynamicField name="*_xml" type="string" indexed="false" stored="true" multiValued="true"/>
+
+   <dynamicField name="*_txt_tokenized" type="text_general" indexed="true" stored="false" multiValued="true"/>
+
    <dynamicField name="*_txt_tokenized_has_case" type="text_general_has_case" indexed="true"
-                 stored="false"/>
-   
-   <dynamicField name="*_bin" type="binary" indexed="false" stored="true"/>
-   
-   <dynamicField name="*_obj" type="binary" indexed="false" stored="true"/>
+                 stored="false" multiValued="true"/>
+
+   <dynamicField name="*_txt_set_tokenized" type="text_general" indexed="true" stored="false"
+                 multiValued="true"/>
+
+   <dynamicField name="*_txt_set_tokenized_has_case" type="text_general_has_case" indexed="true"
+                 stored="false" multiValued="true"/>
+
+   <dynamicField name="*_bin" type="binary" indexed="false" stored="true" multiValued="true"/>
+
+   <dynamicField name="*_obj" type="binary" indexed="false" stored="true" multiValued="true"/>
+
+
+   <dynamicField name="*_int_sk" type="tint" indexed="true" stored="true"/>
+
+   <dynamicField name="*_lng_sk" type="tlong" indexed="true" stored="true"/>
+
+   <dynamicField name="*_shr_sk" type="tint" indexed="true" stored="true"/>
+
+   <dynamicField name="*_flt_sk" type="tfloat" indexed="true" stored="true"/>
+
+   <dynamicField name="*_dbl_sk" type="tdouble" indexed="true" stored="true"/>
+
+   <dynamicField name="*_tdt_sk" type="tdate" indexed="true" stored="true"/>
+
+   <dynamicField name="*_bln_sk" type="boolean" indexed="true" stored="true"/>
+
+   <dynamicField name="*_geo_sk" type="string" indexed="false" stored="true"/>
+
+   <dynamicField name="*_geo_index_sk" type="geohash" indexed="true" stored="false"/>
+
+   <dynamicField name="*_txt_sk" type="string" indexed="true" stored="true"/>
+
+   <dynamicField name="*_xml_sk" type="string" indexed="false" stored="true"/>
+
+   <dynamicField name="*_bin_sk" type="binary" indexed="false" stored="true"/>
+
+   <dynamicField name="*_obj_sk" type="binary" indexed="false" stored="true"/>
 
      <!-- uncomment the following to ignore any fields that don't already match an existing
           field name or dynamic field, rather than reporting them as an error.
           alternately, change the type="ignored" to some other type e.g. "text" if you want
           unknown fields indexed and/or stored by default -->
      <!--dynamicField name="*" type="ignored" multiValued="true" /-->
-   
+
  </fields>
 
     <!-- Field to use to determine and enforce document uniqueness.
@@ -657,8 +706,13 @@
           is added to the index.  It's used either to index the same field differently,
           or to add multiple fields to the same field for easier/faster searching.  -->
 
-    <copyField source="*_txt" dest="*_txt_tokenized"/>
+    <copyField source="*_txt_set" dest="*_txt_set_tokenized" multiValued="true"/>
+   <copyField source="*_txt_set" dest="*_txt_set_tokenized_has_case" multiValued="true"/>
+
+   <copyField source="*_txt" dest="*_txt_tokenized"/>
    <copyField source="*_txt" dest="*_txt_tokenized_has_case"/>
+   <copyField source="*_txt" dest="*_txt_ws"/>
+   <copyField source="*_txt" dest="*_txt_ws_has_case"/>
 
     <!-- Necessary for Spatial4j to work -->
     <copyField source="*_geo" dest="*_geo_index"/>

@@ -381,6 +381,11 @@
                                     <classifier>schema</classifier>
                                 </artifact>
                                 <artifact>
+                                    <file>target/classes/solr/conf/schema_metacard.xml</file>
+                                    <type>xml</type>
+                                    <classifier>schema_metacard</classifier>
+                                </artifact>
+                                <artifact>
                                     <file>target/classes/solr/conf/solr.xml</file>
                                     <type>xml</type>
                                     <classifier>solr</classifier>

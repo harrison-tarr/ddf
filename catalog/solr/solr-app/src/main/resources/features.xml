@@ -37,7 +37,7 @@
         <bundle>mvn:ddf.catalog.solr.external/catalog-solr-external-provider/${project.version}</bundle>
 
         <configfile finalname="/data/solr/catalog/conf/solrcatalogconfig.xml">mvn:ddf.catalog.solr.external/catalog-solr-external-provider/${project.version}/xml/solrcatalogconfig</configfile>
-        <configfile finalname="/data/solr/catalog/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema</configfile>
+        <configfile finalname="/data/solr/catalog/conf/schema.xml">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema_metacard</configfile>
         <configfile finalname="/data/solr/catalog/conf/protwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords</configfile>
         <configfile finalname="/data/solr/catalog/conf/stopwords_en.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords_en</configfile>
         <configfile finalname="/data/solr/catalog/conf/stopwords.txt">mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/stopwords</configfile>

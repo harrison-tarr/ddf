@@ -705,7 +705,7 @@
             mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/solrconfig-inmemory
         </configfile>
         <configfile finalname="/data/solr/metacard/conf/schema.xml">
-            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema
+            mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/xml/schema_metacard
         </configfile>
         <configfile finalname="/data/solr/metacard/conf/protwords.txt">
             mvn:ddf.platform.solr/platform-solr-server-standalone/${project.version}/txt/protwords
