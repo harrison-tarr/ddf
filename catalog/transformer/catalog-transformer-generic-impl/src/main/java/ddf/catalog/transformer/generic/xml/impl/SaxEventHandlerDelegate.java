@@ -19,14 +19,14 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
+import org.xml.sax.helpers.XMLReaderFactory;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
@@ -35,7 +35,7 @@ import ddf.catalog.transformer.generic.xml.SaxEventHandler;
 
 public class SaxEventHandlerDelegate extends DefaultHandler {
 
-    private static SAXParser parser;
+    private static XMLReader parser;
 
     private List<SaxEventHandler> eventHandlers;
 
@@ -48,21 +48,24 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
     public SaxEventHandlerDelegate() {
         try {
             // Read set up
-            SAXParserFactory factory = SAXParserFactory.newInstance();
-
-            factory.setSchema(null);
-            factory.setNamespaceAware(true);
-            factory.setValidating(false);
-            //            factory.setFeature("http://xml.org/sax/features/namespaces", false);
-            factory.setFeature("http://xml.org/sax/features/validation", false);
-            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar",
-                    false);
-            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
-                    false);
-
-            parser = factory.newSAXParser();
+            //            SAXParserFactory factory = SAXParserFactory.newInstance();
+            //
+            //            factory.setSchema(null);
+            //            factory.setNamespaceAware(true);
+            //            factory.setValidating(false);
+            //            //            factory.setFeature("http://xml.org/sax/features/namespaces", false);
+            //            factory.setFeature("http://xml.org/sax/features/validation", false);
+            //            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar",
+            //                    false);
+            //            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd",
+            //                    false);
+            //
+            //            parser = factory.newSAXParser();
+            parser = XMLReaderFactory.createXMLReader();
         } catch (Exception e) {
-            LOGGER.debug("Exception thrown during creation of SaxEventHandlerDelegate. Probably caused by one of the setFeature calls", e);
+            LOGGER.debug(
+                    "Exception thrown during creation of SaxEventHandlerDelegate. Probably caused by one of the setFeature calls",
+                    e);
         }
     }
 
@@ -86,7 +89,10 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
         Metacard metacard = new MetacardImpl();
         try {
             stream = inputStream;
-            parser.parse(new BufferedInputStream(inputStream), this);
+            InputSource newStream = new InputSource(new BufferedInputStream(inputStream));
+            parser.setContentHandler(this);
+            parser.parse(newStream);
+            //parser.parse(new BufferedInputStream(inputStream), this);
         } catch (IOException | SAXException e) {
             LOGGER.debug("Exception thrown during parsing of inputStream", e);
         }

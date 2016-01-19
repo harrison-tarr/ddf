@@ -50,13 +50,13 @@
             </ns1:Point>
         </ns3:value>
     </ns3:geometry>
-    <ns3:geometry name="location">
-        <ns3:value>
-            <ns1:Point ns1:id="p1" srsName="#srs37">
-                <ns1:coordinates>200,100</ns1:coordinates>
-            </ns1:Point>
-        </ns3:value>
-    </ns3:geometry>
+    <!--<ns3:geometry name="location">-->
+        <!--<ns3:value>-->
+            <!--<ns1:Point ns1:id="p1" srsName="#srs37">-->
+                <!--<ns1:coordinates>200,100</ns1:coordinates>-->
+            <!--</ns1:Point>-->
+        <!--</ns3:value>-->
+    <!--</ns3:geometry>-->
     <ns3:string name="resource-uri"/>
     <ns3:dateTime name="effective"/>
 </ns3:metacard>

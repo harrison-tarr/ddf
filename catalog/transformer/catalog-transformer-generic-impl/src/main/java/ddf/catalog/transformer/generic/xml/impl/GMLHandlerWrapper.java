@@ -50,8 +50,8 @@ public class GMLHandlerWrapper implements SaxEventHandler {
     private Stack<String> state;
 
     GMLHandler gh;
-    WKTWriter wktWriter;
 
+    WKTWriter wktWriter;
 
     @Override
     public List<Attribute> getAttributes() {
