@@ -66,6 +66,11 @@ public class GMLHandlerWrapper implements SaxEventHandler {
     }
 
     @Override
+    public List<String> getWatchedElements() {
+        return null;
+    }
+
+    @Override
     public void setDocumentLocator(Locator locator) {
 
     }

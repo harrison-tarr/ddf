@@ -15,7 +15,6 @@ package ddf.catalog.transformer.generic.xml;
 
 import java.util.List;
 
-import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.DTDHandler;
 import org.xml.sax.EntityResolver;
@@ -29,5 +28,10 @@ public interface SaxEventHandler extends EntityResolver, DTDHandler, ContentHand
      * @return a list of attributes that has been constructed during the parsing of an XML document.
      */
     List<Attribute> getAttributes();
+
+    /**
+     * @return a list of XML element local names a handler cares about
+     */
+    List<String> getWatchedElements();
 
 }

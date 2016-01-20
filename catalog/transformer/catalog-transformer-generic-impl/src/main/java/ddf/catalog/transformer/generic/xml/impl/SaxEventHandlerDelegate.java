@@ -16,8 +16,12 @@ package ddf.catalog.transformer.generic.xml.impl;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +41,11 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
 
     private static XMLReader parser;
 
-    private List<SaxEventHandler> eventHandlers;
+    private List<SaxEventHandler> eventHandlers = new ArrayList<>();
+
+    private Map<String, List<SaxEventHandler>> eventHandlerLookup = new HashMap<>();
+
+    private Stack<String> stack = new Stack<>();
 
     private String namespace;
 
@@ -86,6 +94,7 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
     }
 
     public Metacard read(InputStream inputStream) {
+        configureEventHandlerLookup();
         Metacard metacard = new MetacardImpl();
         try {
             stream = inputStream;
@@ -119,24 +128,53 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes)
             throws SAXException {
+        //        List<SaxEventHandler> eventHandlers;
+        //        stack.push(uri + ":" + localName);
+        //        if (((eventHandlers = eventHandlerLookup.get(stack.peek())) != null) || (
+        //                (eventHandlers = eventHandlerLookup.get(stack.peek().split(":")[0]))
+        //                        != null)) {
         for (SaxEventHandler transformer : eventHandlers) {
             transformer.startElement(uri, localName, qName, attributes);
         }
+        //        }
 
     }
 
     @Override
     public void characters(char ch[], int start, int length) throws SAXException {
+        //        List<SaxEventHandler> eventHandlers;
+        //        if ((eventHandlers = eventHandlerLookup.get(stack.peek())) != null) {
         for (SaxEventHandler transformer : eventHandlers) {
             transformer.characters(ch, start, length);
         }
+        //        }
     }
 
     @Override
     public void endElement(String namespaceURI, String localName, String qName)
             throws SAXException {
+        //        List<SaxEventHandler> eventHandlers;
+        //        if ((eventHandlers = eventHandlerLookup.get(stack.peek())) != null) {
+
         for (SaxEventHandler transformer : eventHandlers) {
             transformer.endElement(namespaceURI, localName, qName);
+        }
+
+        //        }
+        //        stack.pop();
+
+    }
+
+    private void configureEventHandlerLookup() {
+
+        for (SaxEventHandler eventHandler : eventHandlers) {
+            for (String element : eventHandler.getWatchedElements()) {
+                List<SaxEventHandler> tmpList = eventHandlerLookup.get(element) != null ?
+                        eventHandlerLookup.get(element) :
+                        new ArrayList<>();
+                tmpList.add(eventHandler);
+                eventHandlerLookup.put(element, tmpList);
+            }
         }
 
     }

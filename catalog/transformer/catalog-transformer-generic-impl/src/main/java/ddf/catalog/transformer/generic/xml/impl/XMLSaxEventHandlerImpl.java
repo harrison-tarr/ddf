@@ -42,9 +42,20 @@ public class XMLSaxEventHandlerImpl implements SaxEventHandler {
 
     private Map<String, String> xmlToMetacard;
 
+    private static List<String> watchedElements = new ArrayList<>();
+
+    static {
+        watchedElements.add("urn:catalog:metacard");
+    }
+
     @Override
     public List<Attribute> getAttributes() {
         return attributes;
+    }
+
+    @Override
+    public List<String> getWatchedElements() {
+        return null;
     }
 
     @Override
