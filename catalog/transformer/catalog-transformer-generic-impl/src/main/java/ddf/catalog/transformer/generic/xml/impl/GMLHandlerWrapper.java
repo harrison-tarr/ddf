@@ -14,6 +14,7 @@
 package ddf.catalog.transformer.generic.xml.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
@@ -52,6 +53,12 @@ public class GMLHandlerWrapper implements SaxEventHandler {
     GMLHandler gh;
 
     WKTWriter wktWriter;
+
+    InputStream inputStream;
+
+    public GMLHandlerWrapper(InputStream inputStream) {
+        this.inputStream = inputStream;
+    }
 
     @Override
     public List<Attribute> getAttributes() {

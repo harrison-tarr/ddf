@@ -30,10 +30,4 @@ public interface SaxEventHandler extends EntityResolver, DTDHandler, ContentHand
      */
     List<Attribute> getAttributes();
 
-    void startElement(String uri, String localName, String qName, Attributes attributes);
-
-    void endElement(String namespaceURI, String localName, String qName);
-
-    void characters(char ch[], int start, int length);
-
 }

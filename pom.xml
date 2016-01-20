@@ -68,7 +68,7 @@
         <lux.version>1.2</lux.version>
         <opengis.bundle.version>8.4_1</opengis.bundle.version>
         <org.geotools.bundle.version>8.4_1</org.geotools.bundle.version>
-        <org.geotools.version>14.1</org.geotools.version>
+        <org.geotools.version>8.4</org.geotools.version>
         <org.slf4j.version>1.7.1</org.slf4j.version>
         <powermock.version>1.5.4</powermock.version>
         <tika.version>1.7</tika.version>

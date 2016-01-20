@@ -117,7 +117,8 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
     }
 
     @Override
-    public void startElement(String uri, String localName, String qName, Attributes attributes) {
+    public void startElement(String uri, String localName, String qName, Attributes attributes)
+            throws SAXException {
         for (SaxEventHandler transformer : eventHandlers) {
             transformer.startElement(uri, localName, qName, attributes);
         }
@@ -125,14 +126,15 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
     }
 
     @Override
-    public void characters(char ch[], int start, int length) {
+    public void characters(char ch[], int start, int length) throws SAXException {
         for (SaxEventHandler transformer : eventHandlers) {
             transformer.characters(ch, start, length);
         }
     }
 
     @Override
-    public void endElement(String namespaceURI, String localName, String qName) {
+    public void endElement(String namespaceURI, String localName, String qName)
+            throws SAXException {
         for (SaxEventHandler transformer : eventHandlers) {
             transformer.endElement(namespaceURI, localName, qName);
         }
