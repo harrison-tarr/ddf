@@ -16,6 +16,8 @@ package ddf.catalog.transformer.generic.xml.impl;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import org.apache.commons.io.input.TeeInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
@@ -34,6 +37,8 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
+import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transformer.generic.xml.SaxEventHandler;
 
@@ -52,6 +57,8 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
     private InputStream stream;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SaxEventHandlerDelegate.class);
+
+    private MetacardType metacardType;
 
     public SaxEventHandlerDelegate() {
         try {
@@ -95,7 +102,7 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
 
     public Metacard read(InputStream inputStream) {
         configureEventHandlerLookup();
-        Metacard metacard = new MetacardImpl();
+        Metacard metacard = new MetacardImpl(metacardType);
         try {
             stream = inputStream;
             InputSource newStream = new InputSource(new BufferedInputStream(inputStream));
@@ -109,7 +116,20 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
         // Populate metacard with all attributes constructed in SaxEventHandlers during parsing
         for (SaxEventHandler eventHandler : eventHandlers) {
             List<Attribute> attributes = eventHandler.getAttributes();
-            attributes.forEach(metacard::setAttribute);
+            for (Attribute attribute : attributes) {
+                Attribute tmpAttr = metacard.getAttribute(attribute.getName());
+                if (tmpAttr != null) {
+                    List<Serializable> tmpAttrValues = tmpAttr
+                            .getValues(); //.stream().filter(Objects::nonNull).collect(Collectors.toList());
+
+                    tmpAttrValues.addAll(attribute.getValues());
+                    tmpAttr = new AttributeImpl(attribute.getName(), tmpAttrValues);
+                    metacard.setAttribute(tmpAttr);
+
+                } else {
+                    metacard.setAttribute(attribute);
+                }
+            }
         }
         return metacard;
     }
@@ -177,6 +197,15 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
             }
         }
 
+    }
+
+    public SaxEventHandlerDelegate setMetacardType(MetacardType metacardType) {
+        this.metacardType = metacardType;
+        return this;
+    }
+
+    public TeeInputStream getMetadataStream(InputStream inputStream, OutputStream outputStream) {
+        return new TeeInputStream(inputStream, outputStream);
     }
 
 }

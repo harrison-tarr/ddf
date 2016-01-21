@@ -13,12 +13,20 @@
  */
 package ddf.catalog.transformer.generic.xml.impl;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.input.TeeInputStream;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.BasicTypes;
+import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
 import ddf.catalog.transformer.generic.xml.SaxEventHandler;
 import ddf.catalog.transformer.generic.xml.SaxEventHandlerFactory;
@@ -40,22 +48,34 @@ public class XMLInputTransformer implements InputTransformer, Describable {
 
     private List<String> saxEventHandlerConfiguration;
 
+    private MetacardType metacardType = BasicTypes.BASIC_METACARD;
+
     public SaxEventHandlerDelegate create() {
 
         // Gets new instances of each SaxEventHandler denoted in saxEventHandlerConfiguration
         List<SaxEventHandler> filteredSaxEventHandlerFactories = saxEventHandlerFactories.stream()
                 .filter(p -> saxEventHandlerConfiguration.contains(p.getId()))
                 .map(SaxEventHandlerFactory::getNewSaxEventHandler).collect(Collectors.toList());
-        return new SaxEventHandlerDelegate(filteredSaxEventHandlerFactories);
+        return new SaxEventHandlerDelegate(filteredSaxEventHandlerFactories)
+                .setMetacardType(metacardType);
 
     }
 
-    public Metacard transform(InputStream inputStream) {
+    public Metacard transform(InputStream inputStream)
+            throws CatalogTransformerException, IOException {
+        if (inputStream == null) {
+            throw new CatalogTransformerException();
+        }
         SaxEventHandlerDelegate delegate = create();
-        return delegate.read(inputStream);
+        OutputStream outputStream = new ByteArrayOutputStream();
+        TeeInputStream teeInputStream = delegate.getMetadataStream(inputStream, outputStream);
+        Metacard metacard = delegate.read(teeInputStream);
+        metacard.setAttribute(new AttributeImpl(Metacard.METADATA, outputStream.toString()));
+        return metacard;
     }
 
-    public Metacard transform(InputStream inputStream, String id) {
+    public Metacard transform(InputStream inputStream, String id)
+            throws CatalogTransformerException, IOException {
         Metacard metacard = transform(inputStream);
         metacard.setAttribute(new AttributeImpl(Metacard.ID, id));
         return metacard;
@@ -112,5 +132,13 @@ public class XMLInputTransformer implements InputTransformer, Describable {
 
     public void setOrganization(String organization) {
         this.organization = organization;
+    }
+
+    public void setMetacardType(MetacardType metacardType) {
+        this.metacardType = metacardType;
+    }
+
+    public MetacardType getMetacardType() {
+        return this.metacardType;
     }
 }
