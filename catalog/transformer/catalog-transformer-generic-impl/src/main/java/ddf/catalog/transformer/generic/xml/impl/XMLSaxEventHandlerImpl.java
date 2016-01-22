@@ -13,17 +13,14 @@
  */
 package ddf.catalog.transformer.generic.xml.impl;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
@@ -146,38 +143,6 @@ public class XMLSaxEventHandlerImpl implements SaxEventHandler {
 
     @Override
     public void skippedEntity(String name) throws SAXException {
-
-    }
-
-    @Override
-    public void notationDecl(String name, String publicId, String systemId) throws SAXException {
-
-    }
-
-    @Override
-    public void unparsedEntityDecl(String name, String publicId, String systemId,
-            String notationName) throws SAXException {
-
-    }
-
-    @Override
-    public InputSource resolveEntity(String publicId, String systemId)
-            throws SAXException, IOException {
-        return null;
-    }
-
-    @Override
-    public void warning(SAXParseException exception) throws SAXException {
-
-    }
-
-    @Override
-    public void error(SAXParseException exception) throws SAXException {
-
-    }
-
-    @Override
-    public void fatalError(SAXParseException exception) throws SAXException {
 
     }
 }

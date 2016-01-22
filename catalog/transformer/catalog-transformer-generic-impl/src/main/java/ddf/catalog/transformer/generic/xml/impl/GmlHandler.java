@@ -13,7 +13,6 @@
  */
 package ddf.catalog.transformer.generic.xml.impl;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,10 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.ErrorHandler;
-import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -38,9 +35,9 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.transformer.generic.xml.SaxEventHandler;
 
-public class GMLHandlerWrapper implements SaxEventHandler {
+public class GmlHandler implements SaxEventHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GMLHandlerWrapper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GmlHandler.class);
 
     private List<Attribute> attributes;
 
@@ -56,7 +53,7 @@ public class GMLHandlerWrapper implements SaxEventHandler {
 
     InputStream inputStream;
 
-    public GMLHandlerWrapper(InputStream inputStream) {
+    public GmlHandler(InputStream inputStream) {
         this.inputStream = inputStream;
     }
 
@@ -154,38 +151,6 @@ public class GMLHandlerWrapper implements SaxEventHandler {
 
     @Override
     public void skippedEntity(String name) throws SAXException {
-
-    }
-
-    @Override
-    public void notationDecl(String name, String publicId, String systemId) throws SAXException {
-
-    }
-
-    @Override
-    public void unparsedEntityDecl(String name, String publicId, String systemId,
-            String notationName) throws SAXException {
-
-    }
-
-    @Override
-    public InputSource resolveEntity(String publicId, String systemId)
-            throws SAXException, IOException {
-        return null;
-    }
-
-    @Override
-    public void warning(SAXParseException exception) throws SAXException {
-
-    }
-
-    @Override
-    public void error(SAXParseException exception) throws SAXException {
-
-    }
-
-    @Override
-    public void fatalError(SAXParseException exception) throws SAXException {
 
     }
 }

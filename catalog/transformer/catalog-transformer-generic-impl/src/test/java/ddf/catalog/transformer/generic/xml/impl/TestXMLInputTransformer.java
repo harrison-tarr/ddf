@@ -30,7 +30,7 @@ import ddf.catalog.data.Metacard;
 public class TestXMLInputTransformer {
     static XMLSaxEventHandlerImpl xmlSaxEventHandlerImpl;
 
-    static GMLHandlerWrapper gmlHandlerWrapper;
+    static GmlHandler gmlHandler;
 
     //    XMLInputTransformer xmlInputTransformer;
     static SaxEventHandlerDelegate saxEventHandlerDelegate;
@@ -47,10 +47,9 @@ public class TestXMLInputTransformer {
                 "../catalog-transformer-xml/src/test/resources/metacard2.xml");
 
         xmlSaxEventHandlerImpl = new XMLSaxEventHandlerImpl();
-        gmlHandlerWrapper = new GMLHandlerWrapper(inputStream);
+        gmlHandler = new GmlHandler(inputStream);
         //        xmlInputTransformer = new XMLInputTransformer();
-        saxEventHandlerDelegate = new SaxEventHandlerDelegate(xmlSaxEventHandlerImpl,
-                gmlHandlerWrapper);
+        saxEventHandlerDelegate = new SaxEventHandlerDelegate(xmlSaxEventHandlerImpl, gmlHandler);
 
         Metacard metacard = saxEventHandlerDelegate.read(inputStream);
         assertThat(metacard.getAttribute(Metacard.TITLE).getValues().size(), is(1));
