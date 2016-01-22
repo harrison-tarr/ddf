@@ -45,7 +45,7 @@ public class TestXMLInputTransformer {
     public void testNormalTransform() throws FileNotFoundException {
 
         inputStream = new FileInputStream(
-                "../catalog-transformer-xml/src/test/resources/metacard2.xml");
+                "../catalog-transformer-ddf.catalog.transformer.generic.xml.api/src/test/resources/metacard2.ddf.catalog.transformer.generic.xml.api");
 
         xmlSaxEventHandlerImpl = new XMLSaxEventHandlerImpl();
         gmlHandler = new GmlHandler(inputStream);
@@ -85,7 +85,7 @@ public class TestXMLInputTransformer {
         //        xmlInputTransformer = new XMLInputTransformer();
         saxEventHandlerDelegate = new SaxEventHandlerDelegate(xmlSaxEventHandlerImpl);
         inputStream = new FileInputStream(
-                "../catalog-transformer-xml/src/test/resources/metacard1.xml");
+                "../catalog-transformer-ddf.catalog.transformer.generic.xml.api/src/test/resources/metacard1.ddf.catalog.transformer.generic.xml.api");
         Metacard metacard = saxEventHandlerDelegate.read(inputStream);
         assertThat(metacard.getAttribute(Metacard.TITLE).getValues().size(), is(1));
         assertThat(metacard.getAttribute(Metacard.TITLE).getValues().get(0), is("Title!"));
