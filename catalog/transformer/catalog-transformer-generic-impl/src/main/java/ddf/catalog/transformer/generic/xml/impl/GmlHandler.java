@@ -32,7 +32,7 @@ import com.vividsolutions.jts.io.gml2.GMLHandler;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.transformer.generic.xml.SaxEventHandler;
+import ddf.catalog.transformer.generic.xml.api.SaxEventHandler;
 
 public class GmlHandler implements SaxEventHandler {
 

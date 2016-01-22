@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.transformer.generic.xml;
+package ddf.catalog.transformer.generic.xml.api;
 
 import ddf.catalog.util.Describable;
 

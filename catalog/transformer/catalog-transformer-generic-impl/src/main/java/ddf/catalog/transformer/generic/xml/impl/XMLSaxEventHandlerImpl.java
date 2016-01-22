@@ -25,7 +25,7 @@ import org.xml.sax.SAXException;
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.impl.AttributeImpl;
-import ddf.catalog.transformer.generic.xml.SaxEventHandler;
+import ddf.catalog.transformer.generic.xml.api.SaxEventHandler;
 
 public class XMLSaxEventHandlerImpl implements SaxEventHandler {
 

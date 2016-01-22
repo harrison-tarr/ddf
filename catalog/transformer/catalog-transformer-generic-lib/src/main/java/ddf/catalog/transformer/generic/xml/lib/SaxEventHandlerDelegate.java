@@ -39,7 +39,7 @@ import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.MetacardImpl;
-import ddf.catalog.transformer.generic.xml.SaxEventHandler;
+import ddf.catalog.transformer.generic.xml.api.SaxEventHandler;
 
 public class SaxEventHandlerDelegate extends DefaultHandler {
 

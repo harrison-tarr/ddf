@@ -15,8 +15,8 @@ package ddf.catalog.transformer.generic.xml.impl;
 
 import java.util.Map;
 
-import ddf.catalog.transformer.generic.xml.SaxEventHandler;
-import ddf.catalog.transformer.generic.xml.SaxEventHandlerFactory;
+import ddf.catalog.transformer.generic.xml.api.SaxEventHandler;
+import ddf.catalog.transformer.generic.xml.api.SaxEventHandlerFactory;
 
 public class XMLSaxEventHandlerFactoryImpl implements SaxEventHandlerFactory {
 

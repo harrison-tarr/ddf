@@ -28,8 +28,8 @@ import ddf.catalog.data.impl.AttributeImpl;
 import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.transform.CatalogTransformerException;
 import ddf.catalog.transform.InputTransformer;
-import ddf.catalog.transformer.generic.xml.SaxEventHandler;
-import ddf.catalog.transformer.generic.xml.SaxEventHandlerFactory;
+import ddf.catalog.transformer.generic.xml.api.SaxEventHandler;
+import ddf.catalog.transformer.generic.xml.api.SaxEventHandlerFactory;
 import ddf.catalog.util.Describable;
 
 public class XMLInputTransformer implements InputTransformer, Describable {
