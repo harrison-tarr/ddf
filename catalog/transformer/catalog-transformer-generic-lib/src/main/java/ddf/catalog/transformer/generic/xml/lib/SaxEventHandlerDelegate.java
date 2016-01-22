@@ -11,7 +11,7 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.transformer.generic.xml.impl;
+package ddf.catalog.transformer.generic.xml.lib;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -50,10 +50,6 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
 
     private Map<String, List<SaxEventHandler>> eventHandlerLookup = new HashMap<>();
 
-    private Stack<String> stack = new Stack<>();
-
-    private String namespace;
-
     private InputStream stream;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SaxEventHandlerDelegate.class);
@@ -82,12 +78,6 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
                     "Exception thrown during creation of SaxEventHandlerDelegate. Probably caused by one of the setFeature calls",
                     e);
         }
-    }
-
-    public SaxEventHandlerDelegate(String namespace, SaxEventHandler... eventHandlers) {
-        this();
-        this.namespace = namespace;
-        this.eventHandlers = Arrays.asList(eventHandlers);
     }
 
     public SaxEventHandlerDelegate(SaxEventHandler... eventHandlers) {
@@ -148,40 +138,26 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes)
             throws SAXException {
-        //        List<SaxEventHandler> eventHandlers;
-        //        stack.push(uri + ":" + localName);
-        //        if (((eventHandlers = eventHandlerLookup.get(stack.peek())) != null) || (
-        //                (eventHandlers = eventHandlerLookup.get(stack.peek().split(":")[0]))
-        //                        != null)) {
         for (SaxEventHandler transformer : eventHandlers) {
             transformer.startElement(uri, localName, qName, attributes);
         }
-        //        }
 
     }
 
     @Override
     public void characters(char ch[], int start, int length) throws SAXException {
-        //        List<SaxEventHandler> eventHandlers;
-        //        if ((eventHandlers = eventHandlerLookup.get(stack.peek())) != null) {
         for (SaxEventHandler transformer : eventHandlers) {
             transformer.characters(ch, start, length);
         }
-        //        }
     }
 
     @Override
     public void endElement(String namespaceURI, String localName, String qName)
             throws SAXException {
-        //        List<SaxEventHandler> eventHandlers;
-        //        if ((eventHandlers = eventHandlerLookup.get(stack.peek())) != null) {
 
         for (SaxEventHandler transformer : eventHandlers) {
             transformer.endElement(namespaceURI, localName, qName);
         }
-
-        //        }
-        //        stack.pop();
 
     }
 

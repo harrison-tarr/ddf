@@ -31,8 +31,6 @@ public class XMLSaxEventHandlerImpl implements SaxEventHandler {
 
     private List<Attribute> attributes;
 
-    private Boolean stillInterested = true;
-
     private String reading;
 
     private StringBuffer stringBuffer;

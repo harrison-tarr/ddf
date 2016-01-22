@@ -26,6 +26,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.transformer.generic.xml.lib.SaxEventHandlerDelegate;
 
 public class TestXMLInputTransformer {
     static XMLSaxEventHandlerImpl xmlSaxEventHandlerImpl;

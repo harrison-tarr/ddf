@@ -22,9 +22,9 @@
         <version>2.9.0-SNAPSHOT</version>
     </parent>
     <groupId>ddf.catalog.transformer</groupId>
-    <artifactId>catalog-transformer-generic</artifactId>
+    <artifactId>catalog-transformer-generic-api</artifactId>
     <packaging>bundle</packaging>
-    <name>DDF :: Catalog :: Transformer :: Generic</name>
+    <name>DDF :: Catalog :: Transformer :: Generic :: API</name>
     <dependencies>
         <dependency>
             <groupId>ddf.catalog.core</groupId>

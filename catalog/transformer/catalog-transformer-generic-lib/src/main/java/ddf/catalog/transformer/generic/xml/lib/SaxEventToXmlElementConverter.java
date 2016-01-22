@@ -12,7 +12,7 @@
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
 
-package ddf.catalog.transformer.generic.xml;
+package ddf.catalog.transformer.generic.xml.lib;
 
 import org.xml.sax.Attributes;
 

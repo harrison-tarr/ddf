@@ -43,10 +43,6 @@ public class GmlHandler implements SaxEventHandler {
 
     private boolean reading = false;
 
-    private StringBuffer stringBuffer;
-
-    private Stack<String> state;
-
     GMLHandler gh;
 
     WKTWriter wktWriter;
@@ -76,9 +72,7 @@ public class GmlHandler implements SaxEventHandler {
     public void startDocument() throws SAXException {
         gh = new GMLHandler(new GeometryFactory(), (ErrorHandler) null);
         wktWriter = new WKTWriter();
-        stringBuffer = new StringBuffer();
         attributes = new ArrayList<>();
-        state = new Stack<>();
 
     }
 

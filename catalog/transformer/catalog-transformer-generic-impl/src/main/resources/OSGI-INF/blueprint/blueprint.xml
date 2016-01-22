@@ -40,7 +40,7 @@
                                 interface="ddf.catalog.transform.InputTransformer">
 
         <cm:managed-component
-                class="ddf.catalog.transformer.generic.xml.impl.XMLInputTransformer"
+                class="ddf.catalog.transformer.generic.xml.lib.XMLInputTransformer"
                 init-method="init" destroy-method="destroy">
             <!--Defines the methods to be invoked when the OpenSearch Source
                 instance is created and when it is deleted. The init method is called after

@@ -11,8 +11,9 @@
  * is distributed along with this program and can be found at
  * <http://www.gnu.org/licenses/lgpl.html>.
  */
-package ddf.catalog.transformer.generic.xml.impl;
+package ddf.catalog.transformer.generic.xml.lib;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,7 +21,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.input.TeeInputStream;
-import org.apache.commons.io.output.ByteArrayOutputStream;
 
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
