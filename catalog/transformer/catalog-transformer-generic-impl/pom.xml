@@ -72,6 +72,11 @@
             <artifactId>ogc-tools-gml-jts</artifactId>
             <version>1.0.3</version>
         </dependency>
+        <dependency>
+            <groupId>org.jvnet.ogc</groupId>
+            <artifactId>gml-v_3_1_1-schema</artifactId>
+            <version>1.0.2</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -86,6 +91,7 @@
                         <Embed-Dependency>
                             catalog-core-api-impl,
                             ogc-tools-gml-jts,
+                            gml-v_3_1_1-schema,
                             jaxb2-basics-runtime
                         </Embed-Dependency>
                     </instructions>
