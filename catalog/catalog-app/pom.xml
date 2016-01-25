@@ -362,5 +362,15 @@
             <artifactId>catalog-plugin-metacard-validation</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>catalog-transformer-generic-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.catalog.transformer</groupId>
+            <artifactId>catalog-transformer-generic-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

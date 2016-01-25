@@ -26,6 +26,7 @@ import java.util.Map;
 import org.junit.Test;
 
 import ddf.catalog.data.Metacard;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.transformer.generic.xml.lib.SaxEventHandlerDelegate;
 
 public class TestXMLInputTransformer {
@@ -45,12 +46,13 @@ public class TestXMLInputTransformer {
     public void testNormalTransform() throws FileNotFoundException {
 
         inputStream = new FileInputStream(
-                "../catalog-transformer-ddf.catalog.transformer.generic.xml.api/src/test/resources/metacard2.ddf.catalog.transformer.generic.xml.api");
+                "../catalog-transformer-xml/src/test/resources/metacard2.xml");
 
         xmlSaxEventHandlerImpl = new XMLSaxEventHandlerImpl();
         gmlHandler = new GmlHandler(inputStream);
         //        xmlInputTransformer = new XMLInputTransformer();
-        saxEventHandlerDelegate = new SaxEventHandlerDelegate(xmlSaxEventHandlerImpl, gmlHandler);
+        saxEventHandlerDelegate = new SaxEventHandlerDelegate(xmlSaxEventHandlerImpl, gmlHandler)
+                .setMetacardType(BasicTypes.BASIC_METACARD);
 
         Metacard metacard = saxEventHandlerDelegate.read(inputStream);
         assertThat(metacard.getAttribute(Metacard.TITLE).getValues().size(), is(1));
@@ -85,7 +87,7 @@ public class TestXMLInputTransformer {
         //        xmlInputTransformer = new XMLInputTransformer();
         saxEventHandlerDelegate = new SaxEventHandlerDelegate(xmlSaxEventHandlerImpl);
         inputStream = new FileInputStream(
-                "../catalog-transformer-ddf.catalog.transformer.generic.xml.api/src/test/resources/metacard1.ddf.catalog.transformer.generic.xml.api");
+                "../catalog-transformer-xml/src/test/resources/metacard2.xml");
         Metacard metacard = saxEventHandlerDelegate.read(inputStream);
         assertThat(metacard.getAttribute(Metacard.TITLE).getValues().size(), is(1));
         assertThat(metacard.getAttribute(Metacard.TITLE).getValues().get(0), is("Title!"));

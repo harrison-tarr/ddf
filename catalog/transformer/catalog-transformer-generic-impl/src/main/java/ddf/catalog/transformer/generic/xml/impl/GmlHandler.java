@@ -42,11 +42,17 @@ public class GmlHandler implements SaxEventHandler {
 
     private boolean reading = false;
 
+    private static List<String> watchedElements = new ArrayList<>();
+
     GMLHandler gh;
 
     WKTWriter wktWriter;
 
     InputStream inputStream;
+
+    static {
+        watchedElements.add("http://www.opengis.net/gml");
+    }
 
     public GmlHandler(InputStream inputStream) {
         this.inputStream = inputStream;
@@ -59,7 +65,7 @@ public class GmlHandler implements SaxEventHandler {
 
     @Override
     public List<String> getWatchedElements() {
-        return null;
+        return watchedElements;
     }
 
     @Override

@@ -58,6 +58,7 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>
+                        <Embed-Dependency>catalog-core-api-impl</Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

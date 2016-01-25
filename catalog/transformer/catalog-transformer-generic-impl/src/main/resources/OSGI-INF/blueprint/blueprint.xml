@@ -55,7 +55,6 @@
                 <value>XML_Handler</value>
             </list>
         </property>
-        <property name="resourceReader" ref="resourceReader"/>
 
         <cm:managed-properties persistent-id=""
                                update-strategy="container-managed"/>

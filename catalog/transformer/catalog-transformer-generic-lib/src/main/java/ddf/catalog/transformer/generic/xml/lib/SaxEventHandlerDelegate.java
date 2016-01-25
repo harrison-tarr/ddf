@@ -38,6 +38,7 @@ import ddf.catalog.data.Attribute;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
 import ddf.catalog.data.impl.AttributeImpl;
+import ddf.catalog.data.impl.BasicTypes;
 import ddf.catalog.data.impl.MetacardImpl;
 import ddf.catalog.transformer.generic.xml.api.SaxEventHandler;
 
@@ -53,7 +54,7 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SaxEventHandlerDelegate.class);
 
-    private MetacardType metacardType;
+    private MetacardType metacardType = BasicTypes.BASIC_METACARD;
 
     public SaxEventHandlerDelegate() {
         try {
@@ -163,12 +164,14 @@ public class SaxEventHandlerDelegate extends DefaultHandler {
     private void configureEventHandlerLookup() {
 
         for (SaxEventHandler eventHandler : eventHandlers) {
-            for (String element : eventHandler.getWatchedElements()) {
-                List<SaxEventHandler> tmpList = eventHandlerLookup.get(element) != null ?
-                        eventHandlerLookup.get(element) :
-                        new ArrayList<>();
-                tmpList.add(eventHandler);
-                eventHandlerLookup.put(element, tmpList);
+            if (eventHandler.getWatchedElements() != null) {
+                for (String element : eventHandler.getWatchedElements()) {
+                    List<SaxEventHandler> tmpList = eventHandlerLookup.get(element) != null ?
+                            eventHandlerLookup.get(element) :
+                            new ArrayList<>();
+                    tmpList.add(eventHandler);
+                    eventHandlerLookup.put(element, tmpList);
+                }
             }
         }
 
