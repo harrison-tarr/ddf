@@ -48,10 +48,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.vividsolutions</groupId>
-            <artifactId>jts</artifactId>
-        </dependency>
-        <dependency>
             <groupId>ddf.catalog.core</groupId>
             <artifactId>catalog-core-api-impl</artifactId>
         </dependency>
@@ -59,6 +55,11 @@
             <groupId>ddf.platform</groupId>
             <artifactId>platform-parser-api</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-runtime</artifactId>
+            <version>0.6.0</version>
         </dependency>
         <dependency>
             <groupId>ddf.platform</groupId>
@@ -82,7 +83,11 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.name}</Bundle-Name>
-                        <Embed-Dependency>catalog-core-api-impl</Embed-Dependency>
+                        <Embed-Dependency>
+                            catalog-core-api-impl,
+                            ogc-tools-gml-jts,
+                            jaxb2-basics-runtime
+                        </Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

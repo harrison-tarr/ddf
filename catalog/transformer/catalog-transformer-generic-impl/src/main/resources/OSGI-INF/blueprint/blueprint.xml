@@ -64,7 +64,7 @@
     </cm:managed-service-factory>
 
 
-    <cm:bean id="gml3ToWkt" class="ddf.catalog.transformer.generic.xml.impl.Gml3ToWktImpl"/>
+    <bean id="gml3ToWkt" class="ddf.catalog.transformer.generic.xml.impl.Gml3ToWktImpl"/>
 
     <cm:service id="Gml3ToWkt" ref="gml3ToWkt" interface="ddf.catalog.transformer.generic.xml.api.Gml3ToWkt"/>
 
