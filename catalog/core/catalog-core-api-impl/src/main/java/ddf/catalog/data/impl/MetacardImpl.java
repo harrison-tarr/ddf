@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import ddf.catalog.data.Attribute;
 import ddf.catalog.data.AttributeDescriptor;
+import ddf.catalog.data.AttributeType;
 import ddf.catalog.data.BinaryContent;
 import ddf.catalog.data.Metacard;
 import ddf.catalog.data.MetacardType;
@@ -710,22 +711,43 @@ public class MetacardImpl implements Metacard {
      *            the value of the {@link Attribute}
      */
     public void setAttribute(String name, Serializable value) {
-        if (value != null && name.equalsIgnoreCase(RESOURCE_URI)
-                && !String.class.isAssignableFrom(value.getClass())) {
-            if(LOGGER.isWarnEnabled()) {
-                LOGGER.warn("Attribute " + RESOURCE_URI + " should be set with a string, not a URI.");
-            }
-            setAttribute(new AttributeImpl(name, value.toString()));
-        } else {
-            setAttribute(new AttributeImpl(name, value));
-        }
+        setAttribute(new AttributeImpl(name, value));
     }
 
     @Override
     public void setAttribute(Attribute attribute) {
-
         if (attribute == null) {
             return;
+        }
+
+        AttributeDescriptor descriptor = this.type.getAttributeDescriptor(attribute.getName());
+        if (descriptor != null) {
+            Class binding = descriptor.getType().getBinding();
+            if (binding != null) {
+                AttributeType.AttributeFormat format = descriptor.getType().getAttributeFormat();
+                if (attribute.getValue() != null && !attribute.getValue().getClass().equals(binding)) {
+//                    if(!binding.isAssignableFrom(attribute.getClass())) {
+//                        throw new IllegalArgumentException(
+//                                "Tried to set " + attribute.getName() + " as a " + attribute.getValue()
+//                                        .getClass()
+//                                        .getName() + ". The correct type for " + attribute.getName()
+//                                        + " is " + format.name() + ".");
+//                    } else {
+//                        attribute = new AttributeImpl(attribute.getName(),
+//                                (Serializable) binding.cast(attribute.getValue()));
+//                    }
+                    try {
+                        attribute = new AttributeImpl(attribute.getName(),
+                                (Serializable) binding.cast(attribute.getValue()));
+                    } catch (NumberFormatException | ClassCastException e) {
+                        throw new IllegalArgumentException(
+                                "Tried to set " + attribute.getName() + " as a "
+                                        + attribute.getValue().getClass()
+                                        .getName() + ". The correct type for " + attribute.getName()
+                                        + " is " + format.name() + ".");
+                    }
+                }
+            }
         }
 
         if (wrappedMetacard != null) {

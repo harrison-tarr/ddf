@@ -139,24 +139,22 @@ public class TestKmlStyleMap {
         assertThat(mapper.getStyleForMetacard(metacard), is(""));
     }
 
-    @Test
+    @Test(expected=IllegalArgumentException.class)
     public void testGetStyleForMetacardBinaryNoMatch() {
         Metacard metacard = new MockMetacard(AttributeFormat.BINARY.toString(),
                 MockMetacard.DEFAULT_LOCATION);
         KmlStyleMap mapper = new KmlStyleMap();
         mapper.addMapEntry(new KmlStyleMapEntryImpl(AttributeFormat.BINARY.toString(),
                 MockMetacard.DEFAULT_LOCATION, DEFAULT_STYLE_URL));
-        assertThat(mapper.getStyleForMetacard(metacard), is(""));
     }
 
-    @Test
+    @Test(expected=IllegalArgumentException.class)
     public void testGetStyleForMetacardObjectNoMatch() {
         Metacard metacard = new MockMetacard(AttributeFormat.OBJECT.toString(),
                 MockMetacard.DEFAULT_LOCATION);
         KmlStyleMap mapper = new KmlStyleMap();
         mapper.addMapEntry(new KmlStyleMapEntryImpl(AttributeFormat.OBJECT.toString(),
                 MockMetacard.DEFAULT_LOCATION, DEFAULT_STYLE_URL));
-        assertThat(mapper.getStyleForMetacard(metacard), is(""));
     }
 
     @Test
