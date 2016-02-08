@@ -726,16 +726,6 @@ public class MetacardImpl implements Metacard {
             if (binding != null) {
                 AttributeType.AttributeFormat format = descriptor.getType().getAttributeFormat();
                 if (attribute.getValue() != null && !attribute.getValue().getClass().equals(binding)) {
-//                    if(!binding.isAssignableFrom(attribute.getClass())) {
-//                        throw new IllegalArgumentException(
-//                                "Tried to set " + attribute.getName() + " as a " + attribute.getValue()
-//                                        .getClass()
-//                                        .getName() + ". The correct type for " + attribute.getName()
-//                                        + " is " + format.name() + ".");
-//                    } else {
-//                        attribute = new AttributeImpl(attribute.getName(),
-//                                (Serializable) binding.cast(attribute.getValue()));
-//                    }
                     try {
                         attribute = new AttributeImpl(attribute.getName(),
                                 (Serializable) binding.cast(attribute.getValue()));

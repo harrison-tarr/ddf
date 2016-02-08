@@ -216,6 +216,7 @@ public abstract class AbstractFeatureConverter implements FeatureConverter {
                             value);
 
                     mc.setAttribute(reader.getNodeName(), value);
+                    //TODO Check type
                 }
 
             }
