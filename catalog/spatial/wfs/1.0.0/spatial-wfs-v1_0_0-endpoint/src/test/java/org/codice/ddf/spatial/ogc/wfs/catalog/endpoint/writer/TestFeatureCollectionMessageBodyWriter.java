@@ -219,7 +219,7 @@ public class TestFeatureCollectionMessageBodyWriter {
 
         descriptors.addAll(BasicTypes.BASIC_METACARD.getAttributeDescriptors());
         descriptors.add(
-                new AttributeDescriptorImpl(ID, false, false, false, false, BasicTypes.LONG_TYPE));
+                new AttributeDescriptorImpl(ID, false, false, false, false, BasicTypes.STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(TITLE, false, false, false, false,
                 BasicTypes.STRING_TYPE));
         descriptors.add(new AttributeDescriptorImpl(DATE_CREATED, false, false, false, false,

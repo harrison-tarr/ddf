@@ -148,13 +148,14 @@ public class TestKmlStyleMap {
                 MockMetacard.DEFAULT_LOCATION, DEFAULT_STYLE_URL));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testGetStyleForMetacardObjectNoMatch() {
         Metacard metacard = new MockMetacard(AttributeFormat.OBJECT.toString(),
                 MockMetacard.DEFAULT_LOCATION);
         KmlStyleMap mapper = new KmlStyleMap();
         mapper.addMapEntry(new KmlStyleMapEntryImpl(AttributeFormat.OBJECT.toString(),
                 MockMetacard.DEFAULT_LOCATION, DEFAULT_STYLE_URL));
+        assertThat(mapper.getStyleForMetacard(metacard), is(""));
     }
 
     @Test
