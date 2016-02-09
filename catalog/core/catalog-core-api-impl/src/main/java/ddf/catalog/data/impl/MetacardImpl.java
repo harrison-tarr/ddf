@@ -755,6 +755,14 @@ public class MetacardImpl implements Metacard {
         }
     }
 
+    public AttributeType getAttributeType(String attributeName) {
+        AttributeDescriptor descriptor = this.type.getAttributeDescriptor(attributeName);
+        if (descriptor != null) {
+            return descriptor.getType();
+        }
+        return null;
+    }
+
     /**
      * Serializes this {@link MetacardImpl} instance.
      *
