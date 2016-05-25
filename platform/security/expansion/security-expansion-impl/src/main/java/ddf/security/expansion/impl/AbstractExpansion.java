@@ -19,6 +19,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -455,7 +457,8 @@ public abstract class AbstractExpansion implements Expansion {
         }
         File file = null;
         filename = StringUtils.strip(filename);
-        if (!StringUtils.startsWith(filename, "/") && !StringUtils.startsWith(filename, "\\") && !(StringUtils.indexOf(filename, ':') == 1)) {
+        Path filePath = Paths.get(filename);
+        if (!filePath.isAbsolute()) {
             // relative path
             String relPath = System.getProperty("ddf.home");
             if (StringUtils.isBlank(relPath)) {
