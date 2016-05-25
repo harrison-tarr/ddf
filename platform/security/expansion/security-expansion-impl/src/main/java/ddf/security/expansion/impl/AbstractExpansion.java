@@ -455,7 +455,7 @@ public abstract class AbstractExpansion implements Expansion {
         }
         File file = null;
         filename = StringUtils.strip(filename);
-        if (!StringUtils.startsWith(filename, "/") && !StringUtils.startsWith(filename, "\\")) {
+        if (!StringUtils.startsWith(filename, "/") && !StringUtils.startsWith(filename, "\\") && !(StringUtils.indexOf(filename, ':') == 1)) {
             // relative path
             String relPath = System.getProperty("ddf.home");
             if (StringUtils.isBlank(relPath)) {
