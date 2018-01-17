@@ -20,11 +20,13 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.common.annotations.VisibleForTesting;
 import ddf.security.Subject;
 import ddf.security.service.SecurityManager;
 import ddf.security.service.SecurityServiceException;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import org.apache.activemq.artemis.api.core.Message;
 import org.apache.activemq.artemis.core.message.impl.CoreMessage;
@@ -32,8 +34,6 @@ import org.apache.activemq.artemis.core.server.ServerSession;
 import org.apache.activemq.artemis.protocol.amqp.broker.AMQPMessage;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.google.common.annotations.VisibleForTesting;
 
 public class SubjectInjectorPluginTest {
   private Subject mockSubject;
@@ -54,10 +54,9 @@ public class SubjectInjectorPluginTest {
     when(mockServerSession.getUsername()).thenReturn("hello");
     when(mockServerSession.getPassword()).thenReturn("world");
 
-    securityServerPlugin = new SubjectInjectorPluginTester();
+    securityServerPlugin =
+        new SubjectInjectorPluginTester(new HashSet<>(Collections.singletonList("test.address")));
     securityServerPlugin.setSecurityManager(mockSecurityManager);
-    securityServerPlugin.setConfiguredAddresses(
-        new HashSet<>(Collections.singletonList("test.address")));
     securityServerPlugin.clearCache();
   }
 
@@ -107,7 +106,7 @@ public class SubjectInjectorPluginTest {
   @Test
   public void testNotApplicableAddress() throws SecurityServiceException {
 
-    securityServerPlugin.setConfiguredAddresses(new HashSet<>());
+    securityServerPlugin = new SubjectInjectorPluginTester(new HashSet<>());
 
     Message message = new CoreMessage();
     message.setAddress("test.address");
@@ -117,6 +116,10 @@ public class SubjectInjectorPluginTest {
   }
 
   static class SubjectInjectorPluginTester extends SubjectInjectorPlugin {
+
+    public SubjectInjectorPluginTester(Set<String> configuredAddresses) {
+      super(configuredAddresses);
+    }
 
     @Override
     @VisibleForTesting

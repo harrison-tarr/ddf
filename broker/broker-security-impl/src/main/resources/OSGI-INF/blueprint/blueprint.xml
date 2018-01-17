@@ -27,10 +27,10 @@
                 persistent-id="org.codice.ddf.broker.security.impl.SubjectInjectorPlugin"
                 update-strategy="component-managed" update-method="update"/>
         <property name="securityManager" ref="securityManagerService"/>
-        <property name="configuredAddresses">
+        <argument>
             <set>
             </set>
-        </property>
+        </argument>
     </bean>
 
     <service id="subjectInjectorPluginService"
