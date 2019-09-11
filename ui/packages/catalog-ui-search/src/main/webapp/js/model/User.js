@@ -32,6 +32,7 @@ const moment = require('moment-timezone')
 const Theme = require('./Theme.js')
 const ThemeUtils = require('../ThemeUtils.js')
 const QuerySettings = require('./QuerySettings.js')
+const Oauth = require('./Oauth.js')
 require('backbone-associations')
 
 const User = {}
@@ -137,6 +138,7 @@ User.Preferences = Backbone.AssociatedModel.extend({
       columnHide: [],
       columnOrder: ['title', 'created', 'modified', 'thumbnail'],
       uploads: [],
+      oauth: [],
       fontSize: ThemeUtils.getFontSize(_get(properties, 'zoomPercentage', 100)),
       resultCount: properties.resultCount,
       dateTimeFormat: Common.getDateTimeFormats()['ISO'],
@@ -172,6 +174,11 @@ User.Preferences = Backbone.AssociatedModel.extend({
     },
     {
       type: Backbone.Many,
+      key: 'oauth',
+      relatedModel: Oauth,
+    },
+    {
+      type: Backbone.Many,
       key: 'resultBlacklist',
       relatedModel: BlackListItem,
     },
@@ -191,9 +198,11 @@ User.Preferences = Backbone.AssociatedModel.extend({
     this.handleResultCount()
     this.listenTo(wreqr.vent, 'alerts:add', this.addAlert)
     this.listenTo(wreqr.vent, 'uploads:add', this.addUpload)
+    this.listenTo(wreqr.vent, 'oauth:add', this.addOauth)
     this.listenTo(wreqr.vent, 'preferences:save', this.savePreferences)
     this.listenTo(this.get('alerts'), 'remove', this.savePreferences)
     this.listenTo(this.get('uploads'), 'remove', this.savePreferences)
+    this.listenTo(this.get('oauth'), 'remove', this.savePreferences)
     this.listenTo(this, 'change:visualization', this.savePreferences)
     this.listenTo(this, 'change:fontSize', this.savePreferences)
     this.listenTo(this, 'change:goldenLayout', this.savePreferences)
@@ -211,6 +220,10 @@ User.Preferences = Backbone.AssociatedModel.extend({
   },
   addAlert(alertDetails) {
     this.get('alerts').add(alertDetails)
+    this.savePreferences()
+  },
+  addOauth(oauthDetails) {
+    this.get('oauth').add(oauthDetails)
     this.savePreferences()
   },
   savePreferences() {
@@ -252,10 +265,12 @@ User.Preferences = Backbone.AssociatedModel.extend({
     if (!this.get('alertPersistence')) {
       this.get('alerts').reset()
       this.get('uploads').reset()
+      this.get('oauth').reset()
     } else {
       const expiration = this.get('alertExpiration')
       this.removeExpiredAlerts(expiration)
       this.removeExpiredUploads(expiration)
+      this.removeExpiredOauth(expiration)
     }
   },
   removeExpiredAlerts(expiration) {
@@ -271,6 +286,13 @@ User.Preferences = Backbone.AssociatedModel.extend({
       return Date.now() - recievedAt > expiration
     })
     this.get('uploads').remove(expiredUploads)
+  },
+  removeExpiredOauth(expiration) {
+    const expiredOauth = this.get('oauth').filter(oauth => {
+      const recievedAt = oauth.getTimeComparator()
+      return Date.now() - recievedAt > expiration
+    })
+    this.get('oauth').remove(expiredOauth)
   },
   getSummaryShown() {
     return this.get('inspector-summaryShown')

@@ -37,6 +37,28 @@
             default=""
             description="Password to use with HTTP Basic Authentication. This auth info will overwrite any federated auth info. Only set this if the OpenSearch endpoint requires basic authentication."/>
 
+        <AD name="Use OAuth 2.0" id="useOauth" required="false" type="Boolean" default="false"
+            description="Check to use the OAuth 2.0 protocol instead of the default SAML protocol. To use OAuth 2.0,
+            please provide the OAuth provider's discovery URL as well as the client ID and the client secret to use.">
+        </AD>
+
+        <AD name="Oauth Discovery Url" id="oauthDiscoveryUrl" required="false" type="String"
+            default="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"
+            description="The Discovery URL where the metadata of the OAuth Provider protecting the source is hosted.
+            Required to use OAuth 2.0."/>
+
+        <AD name="Oauth Client ID" id="oauthClientId" required="false" type="String" default="ddf-client"
+            description="Client ID registered with the OAuth provider. Required to use OAuth 2.0."/>
+
+        <AD name="Oauth Client Secret" id="oauthClientSecret" required="false" type="String" default="secret"
+            description="Client Secret registered with the OAuth provider. Required to use OAuth 2.0."/>
+
+        <AD name="Oauth Flow" id="oauthFlow" type="String" default="code"
+            description="The OAuth flow to use when federating.">
+            <Option label="Authorization Code Flow - federate user's token" value="code"/>
+            <Option label="Client Credential Flow - federate system's token" value="credential"/>
+        </AD>
+
         <AD name="OpenSearch query parameters" id="parameters" required="true"
             type="String"
             default="q,src,mr,start,count,mt,dn,lat,lon,radius,bbox,geometry,polygon,dtstart,dtend,dateName,filter,sort"

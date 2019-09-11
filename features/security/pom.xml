@@ -139,6 +139,16 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>ddf.security.storage</groupId>
+            <artifactId>token-storage-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.security.storage</groupId>
+            <artifactId>token-storage-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>ddf.security.pep</groupId>
             <artifactId>security-pep-interceptor</artifactId>
             <version>${project.version}</version>
@@ -437,6 +447,11 @@
         <dependency>
             <groupId>ddf.platform.security</groupId>
             <artifactId>security-rest-cxfwrapper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ddf.platform.security</groupId>
+            <artifactId>security-oauth-interceptor</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -176,6 +176,11 @@ public abstract class AbstractCswSource extends MaskableImpl
   protected static final String SECURITY_ATTRIBUTES_PROPERTY = "securityAttributeStrings";
   protected static final String EVENT_SERVICE_ADDRESS = "eventServiceAddress";
   protected static final String REGISTER_FOR_EVENTS = "registerForEvents";
+  protected static final String USE_OAUTH = "useOauth";
+  protected static final String OAUTH_DISCOVERY_URL = "oauthDiscoveryUrl";
+  protected static final String OAUTH_CLIENT_ID = "oauthClientId";
+  protected static final String OAUTH_CLIENT_SECRET = "oauthClientSecret";
+  protected static final String OAUTH_FLOW = "oauthFlow";
   private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCswSource.class);
   private static final String DEFAULT_CSW_TRANSFORMER_ID = "csw";
   private static final String DESCRIBABLE_PROPERTIES_FILE = "/describable.properties";
@@ -340,7 +345,13 @@ public abstract class AbstractCswSource extends MaskableImpl
               cswSourceConfiguration.getConnectionTimeout(),
               cswSourceConfiguration.getReceiveTimeout(),
               cswSourceConfiguration.getUsername(),
-              cswSourceConfiguration.getPassword());
+              cswSourceConfiguration.getPassword(),
+              cswSourceConfiguration.getId(),
+              cswSourceConfiguration.isUseOauth(),
+              cswSourceConfiguration.getOauthDiscoveryUrl(),
+              cswSourceConfiguration.getOauthClientId(),
+              cswSourceConfiguration.getOauthClientSecret(),
+              cswSourceConfiguration.getOauthFlow());
     } else if (StringUtils.isNotBlank(cswSourceConfiguration.getCertAlias())
         && StringUtils.isNotBlank(cswSourceConfiguration.getKeystorePath())) {
       factory =
@@ -355,7 +366,13 @@ public abstract class AbstractCswSource extends MaskableImpl
               cswSourceConfiguration.getReceiveTimeout(),
               cswSourceConfiguration.getCertAlias(),
               cswSourceConfiguration.getKeystorePath(),
-              cswSourceConfiguration.getSslProtocol());
+              cswSourceConfiguration.getSslProtocol(),
+              cswSourceConfiguration.getId(),
+              cswSourceConfiguration.isUseOauth(),
+              cswSourceConfiguration.getOauthDiscoveryUrl(),
+              cswSourceConfiguration.getOauthClientId(),
+              cswSourceConfiguration.getOauthClientSecret(),
+              cswSourceConfiguration.getOauthFlow());
     } else {
       factory =
           clientFactoryFactory.getSecureCxfClientFactory(
@@ -366,7 +383,13 @@ public abstract class AbstractCswSource extends MaskableImpl
               cswSourceConfiguration.getDisableCnCheck(),
               false,
               cswSourceConfiguration.getConnectionTimeout(),
-              cswSourceConfiguration.getReceiveTimeout());
+              cswSourceConfiguration.getReceiveTimeout(),
+              cswSourceConfiguration.getId(),
+              cswSourceConfiguration.isUseOauth(),
+              cswSourceConfiguration.getOauthDiscoveryUrl(),
+              cswSourceConfiguration.getOauthClientId(),
+              cswSourceConfiguration.getOauthClientSecret(),
+              cswSourceConfiguration.getOauthFlow());
     }
   }
 
@@ -384,7 +407,13 @@ public abstract class AbstractCswSource extends MaskableImpl
               cswSourceConfiguration.getConnectionTimeout(),
               cswSourceConfiguration.getReceiveTimeout(),
               cswSourceConfiguration.getUsername(),
-              cswSourceConfiguration.getPassword());
+              cswSourceConfiguration.getPassword(),
+              cswSourceConfiguration.getId(),
+              cswSourceConfiguration.isUseOauth(),
+              cswSourceConfiguration.getOauthDiscoveryUrl(),
+              cswSourceConfiguration.getOauthClientId(),
+              cswSourceConfiguration.getOauthClientSecret(),
+              cswSourceConfiguration.getOauthFlow());
     } else if (StringUtils.isNotBlank(cswSourceConfiguration.getCertAlias())
         && StringUtils.isNotBlank(cswSourceConfiguration.getKeystorePath())) {
       subscribeClientFactory =
@@ -399,7 +428,13 @@ public abstract class AbstractCswSource extends MaskableImpl
               cswSourceConfiguration.getReceiveTimeout(),
               cswSourceConfiguration.getCertAlias(),
               cswSourceConfiguration.getKeystorePath(),
-              cswSourceConfiguration.getSslProtocol());
+              cswSourceConfiguration.getSslProtocol(),
+              cswSourceConfiguration.getId(),
+              cswSourceConfiguration.isUseOauth(),
+              cswSourceConfiguration.getOauthDiscoveryUrl(),
+              cswSourceConfiguration.getOauthClientId(),
+              cswSourceConfiguration.getOauthClientSecret(),
+              cswSourceConfiguration.getOauthFlow());
     } else {
       subscribeClientFactory =
           clientFactoryFactory.getSecureCxfClientFactory(
@@ -410,7 +445,13 @@ public abstract class AbstractCswSource extends MaskableImpl
               cswSourceConfiguration.getDisableCnCheck(),
               false,
               cswSourceConfiguration.getConnectionTimeout(),
-              cswSourceConfiguration.getReceiveTimeout());
+              cswSourceConfiguration.getReceiveTimeout(),
+              cswSourceConfiguration.getId(),
+              cswSourceConfiguration.isUseOauth(),
+              cswSourceConfiguration.getOauthDiscoveryUrl(),
+              cswSourceConfiguration.getOauthClientId(),
+              cswSourceConfiguration.getOauthClientSecret(),
+              cswSourceConfiguration.getOauthFlow());
     }
   }
 
@@ -474,6 +515,19 @@ public abstract class AbstractCswSource extends MaskableImpl
 
     consumerMap.put(
         REGISTER_FOR_EVENTS, value -> cswSourceConfiguration.setRegisterForEvents((Boolean) value));
+
+    consumerMap.put(USE_OAUTH, value -> cswSourceConfiguration.setUseOauth((Boolean) value));
+
+    consumerMap.put(
+        OAUTH_DISCOVERY_URL, value -> cswSourceConfiguration.setOauthDiscoveryUrl((String) value));
+
+    consumerMap.put(
+        OAUTH_CLIENT_ID, value -> cswSourceConfiguration.setOauthClientId((String) value));
+
+    consumerMap.put(
+        OAUTH_CLIENT_SECRET, value -> cswSourceConfiguration.setOauthClientSecret((String) value));
+
+    consumerMap.put(OAUTH_FLOW, value -> cswSourceConfiguration.setOauthFlow((String) value));
 
     consumerMap.put(
         EVENT_SERVICE_ADDRESS,
@@ -1017,6 +1071,51 @@ public abstract class AbstractCswSource extends MaskableImpl
     cswSourceConfiguration.setPassword(updatedPassword);
   }
 
+  @Override
+  public boolean isUseOauth() {
+    return cswSourceConfiguration.isUseOauth();
+  }
+
+  public void setUseOauth(boolean useOauth) {
+    cswSourceConfiguration.setUseOauth(useOauth);
+  }
+
+  @Override
+  public String getOauthDiscoveryUrl() {
+    return cswSourceConfiguration.getOauthDiscoveryUrl();
+  }
+
+  public void setOauthDiscoveryUrl(String oauthDiscoveryUrl) {
+    cswSourceConfiguration.setOauthDiscoveryUrl(oauthDiscoveryUrl);
+  }
+
+  @Override
+  public String getOauthClientId() {
+    return cswSourceConfiguration.getOauthClientId();
+  }
+
+  public void setOauthClientId(String oauthClientId) {
+    cswSourceConfiguration.setOauthClientId(oauthClientId);
+  }
+
+  @Override
+  public String getOauthClientSecret() {
+    return cswSourceConfiguration.getOauthClientSecret();
+  }
+
+  public void setOauthClientSecret(String oauthClientSecret) {
+    cswSourceConfiguration.setOauthClientSecret(oauthClientSecret);
+  }
+
+  @Override
+  public String getOauthFlow() {
+    return cswSourceConfiguration.getOauthFlow();
+  }
+
+  public void setOauthFlow(String oauthFlow) {
+    cswSourceConfiguration.setOauthFlow(oauthFlow);
+  }
+
   public void setCertAlias(String certAlias) {
     cswSourceConfiguration.setCertAlias(certAlias);
   }
@@ -1401,8 +1500,7 @@ public abstract class AbstractCswSource extends MaskableImpl
 
   protected CapabilitiesType getCapabilities() {
     CapabilitiesType caps = null;
-    Subject subject = getSystemSubject();
-    Csw csw = factory.getClientForSubject(subject);
+    Csw csw = factory.getClientForSystemSubject(getSystemSubject());
 
     try {
       LOGGER.debug("Doing getCapabilities() call for CSW");
@@ -1830,7 +1928,8 @@ public abstract class AbstractCswSource extends MaskableImpl
     }
 
     initSubscribeClientFactory();
-    CswSubscribe cswSubscribe = subscribeClientFactory.getClientForSubject(getSystemSubject());
+    CswSubscribe cswSubscribe =
+        subscribeClientFactory.getClientForSystemSubject(getSystemSubject());
     GetRecordsType request = createSubscriptionGetRecordsRequest();
     try (Response response = cswSubscribe.createRecordsSubscription(request)) {
       if (Response.Status.OK.getStatusCode() == response.getStatus()) {
@@ -1866,7 +1965,8 @@ public abstract class AbstractCswSource extends MaskableImpl
   private void removeEventServiceSubscription() {
 
     if (filterlessSubscriptionId != null && subscribeClientFactory != null) {
-      CswSubscribe cswSubscribe = subscribeClientFactory.getClientForSubject(getSystemSubject());
+      CswSubscribe cswSubscribe =
+          subscribeClientFactory.getClientForSystemSubject(getSystemSubject());
       try {
         cswSubscribe.deleteRecordsSubscription(filterlessSubscriptionId);
 

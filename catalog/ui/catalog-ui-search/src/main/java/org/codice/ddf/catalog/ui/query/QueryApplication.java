@@ -13,6 +13,7 @@
  */
 package org.codice.ddf.catalog.ui.query;
 
+import static ddf.catalog.plugin.OAuthPluginException.ErrorType.NO_AUTH;
 import static javax.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static spark.Spark.before;
 import static spark.Spark.exception;
@@ -22,7 +23,7 @@ import static spark.Spark.post;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import ddf.catalog.plugin.OauthPluginException;
+import ddf.catalog.plugin.OAuthPluginException;
 import ddf.catalog.source.UnsupportedQueryException;
 import java.io.IOException;
 import java.util.Date;
@@ -112,10 +113,15 @@ public class QueryApplication implements SparkApplication, Function {
             CqlRequest cqlRequest = GSON.fromJson(util.safeGetBody(req), CqlRequest.class);
             CqlQueryResponse cqlQueryResponse = util.executeCqlQuery(cqlRequest);
             return GSON.toJson(cqlQueryResponse);
-          } catch (OauthPluginException e) {
-            res.status(HttpStatus.SC_UNAUTHORIZED);
+          } catch (OAuthPluginException e) {
+            if (e.getErrorType() == NO_AUTH) {
+              res.status(HttpStatus.SC_UNAUTHORIZED);
+            } else {
+              res.status(HttpStatus.SC_PRECONDITION_FAILED);
+            }
+
             Map<String, String> responseMap =
-                ImmutableMap.of(ID_KEY, e.getSourceId(), URL_KEY, e.getProviderUrl());
+                ImmutableMap.of(ID_KEY, e.getSourceId(), URL_KEY, e.getUrl());
             return GSON.toJson(responseMap);
           }
         });
@@ -201,10 +207,15 @@ public class QueryApplication implements SparkApplication, Function {
 
     try {
       return util.executeCqlQuery(cqlRequest);
-    } catch (OauthPluginException e) {
+    } catch (OAuthPluginException e) {
       Map<String, String> responseMap =
-          ImmutableMap.of(ID_KEY, e.getSourceId(), URL_KEY, e.getProviderUrl());
-      return JsonRpc.error(HttpStatus.SC_UNAUTHORIZED, GSON.toJson(responseMap));
+          ImmutableMap.of(ID_KEY, e.getSourceId(), URL_KEY, e.getUrl());
+
+      if (e.getErrorType() == NO_AUTH) {
+        return JsonRpc.error(HttpStatus.SC_UNAUTHORIZED, GSON.toJson(responseMap));
+      } else {
+        return JsonRpc.error(HttpStatus.SC_PRECONDITION_FAILED, GSON.toJson(responseMap));
+      }
     } catch (UnsupportedQueryException e) {
       LOGGER.error(QUERY_ENDPOINT_FAILED, e);
       return JsonRpc.error(400, "Unsupported query request.");

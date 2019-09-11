@@ -29,8 +29,7 @@ const _merge = require('lodash/merge')
 require('backbone-associations')
 import PartialAssociatedModel from '../../js/extensions/backbone.partialAssociatedModel'
 const plugin = require('plugins/query')
-import React from 'react'
-import { readableColor } from 'polished'
+const wreqr = require('../wreqr.js')
 
 const Query = {}
 
@@ -420,25 +419,32 @@ Query.Model = PartialAssociatedModel.extend({
           },
           error(model, response, options) {
             if (response.status === 401) {
-              const providerUrl = response.responseJSON.url
+              // OAuth Login
+              const url = response.responseJSON.url
               const sourceId = response.responseJSON.id
+              const type = 'login'
+              const when = Date.now()
 
-              const link = React.createElement(
-                'a',
-                {
-                  href: providerUrl,
-                  target: '_blank',
-                  style: {
-                    color: `${props =>
-                      readableColor(props.theme.negativeColor)}`,
-                  },
-                },
-                `Click Here To Authenticate ${sourceId}`
-              )
-              announcement.announce({
-                title: `Source ${sourceId} is Not Authenticated`,
-                message: link,
-                type: 'error',
+              wreqr.vent.trigger('oauth:add', {
+                when,
+                type,
+                sourceId,
+                url,
+              })
+            }
+
+            if (response.status === 412) {
+              // OAuth Unauthorized Source
+              const url = response.responseJSON.url
+              const sourceId = response.responseJSON.id
+              const type = 'authorize'
+              const when = Date.now()
+
+              wreqr.vent.trigger('oauth:add', {
+                when,
+                type,
+                sourceId,
+                url,
               })
             }
 

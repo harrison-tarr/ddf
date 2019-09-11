@@ -153,9 +153,6 @@ public class RegistryStoreTest {
             anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), any()))
         .thenReturn(factory);
     when(clientFactoryFactory.getSecureCxfClientFactory(
-            anyString(), any(), any(), any(), anyBoolean(), anyBoolean(), anyInt(), anyInt()))
-        .thenReturn(factory);
-    when(clientFactoryFactory.getSecureCxfClientFactory(
             anyString(),
             any(),
             any(),
@@ -164,6 +161,10 @@ public class RegistryStoreTest {
             anyBoolean(),
             anyInt(),
             anyInt(),
+            anyString(),
+            anyBoolean(),
+            anyString(),
+            anyString(),
             anyString(),
             anyString()))
         .thenReturn(factory);
@@ -176,6 +177,29 @@ public class RegistryStoreTest {
             anyBoolean(),
             anyInt(),
             anyInt(),
+            anyString(),
+            anyString(),
+            anyString(),
+            anyBoolean(),
+            anyString(),
+            anyString(),
+            anyString(),
+            anyString()))
+        .thenReturn(factory);
+    when(clientFactoryFactory.getSecureCxfClientFactory(
+            anyString(),
+            any(),
+            any(),
+            any(),
+            anyBoolean(),
+            anyBoolean(),
+            anyInt(),
+            anyInt(),
+            anyString(),
+            anyString(),
+            anyString(),
+            anyBoolean(),
+            anyString(),
             anyString(),
             anyString(),
             anyString()))
@@ -241,6 +265,7 @@ public class RegistryStoreTest {
     when(insertResultType.getBriefRecord()).thenReturn(Collections.singletonList(briefRecord));
     when(responseType.getInsertResult()).thenReturn(Collections.singletonList(insertResultType));
     when(factory.getClientForSubject(any())).thenReturn(csw);
+    when(factory.getClientForSystemSubject(any())).thenReturn(csw);
     when(csw.transaction(any())).thenReturn(responseType);
     when(transformer.getTransformerIdForSchema(any())).thenReturn("myInsertType");
     queryResults.add(new ResultImpl(mcard));
@@ -257,6 +282,7 @@ public class RegistryStoreTest {
     tst.setTotalUpdated(new BigInteger("1"));
     when(responseType.getTransactionSummary()).thenReturn(tst);
     when(factory.getClientForSubject(any())).thenReturn(csw);
+    when(factory.getClientForSystemSubject(any())).thenReturn(csw);
     when(csw.transaction(any())).thenReturn(responseType);
     when(transformer.getTransformerIdForSchema(any())).thenReturn(null);
     UpdateRequestImpl request = new UpdateRequestImpl("testId", getDefaultMetacard());
@@ -398,6 +424,7 @@ public class RegistryStoreTest {
     when(csw.transaction(any(CswTransactionRequest.class))).thenReturn(transResponse);
 
     when(factory.getClientForSubject(any())).thenReturn(csw);
+    when(factory.getClientForSystemSubject(any())).thenReturn(csw);
     when(transformer.getTransformerIdForSchema(any())).thenReturn(null);
     FilterAdapter mockAdaptor = mock(FilterAdapter.class);
     CswFilterFactory filterFactory = new CswFilterFactory(CswAxisOrder.LAT_LON, false);

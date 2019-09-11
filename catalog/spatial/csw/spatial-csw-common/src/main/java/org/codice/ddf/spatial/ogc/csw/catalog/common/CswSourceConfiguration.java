@@ -69,6 +69,16 @@ public class CswSourceConfiguration {
 
   private boolean registerForEvents;
 
+  private boolean useOauth;
+
+  private String oauthDiscoveryUrl;
+
+  private String oauthClientId;
+
+  private String oauthClientSecret;
+
+  private String oauthFlow;
+
   private EncryptionService encryptionService;
 
   private Map<String, Set<String>> securityAttributes = new HashMap<>();
@@ -232,6 +242,46 @@ public class CswSourceConfiguration {
 
   public void setRegisterForEvents(Boolean registerForEvents) {
     this.registerForEvents = registerForEvents;
+  }
+
+  public boolean isUseOauth() {
+    return useOauth;
+  }
+
+  public void setUseOauth(boolean useOauth) {
+    this.useOauth = useOauth;
+  }
+
+  public String getOauthDiscoveryUrl() {
+    return oauthDiscoveryUrl;
+  }
+
+  public void setOauthDiscoveryUrl(String oauthDiscoveryUrl) {
+    this.oauthDiscoveryUrl = oauthDiscoveryUrl;
+  }
+
+  public String getOauthClientId() {
+    return oauthClientId;
+  }
+
+  public void setOauthClientId(String oauthClientId) {
+    this.oauthClientId = oauthClientId;
+  }
+
+  public String getOauthClientSecret() {
+    return oauthClientSecret;
+  }
+
+  public void setOauthClientSecret(String oauthClientSecret) {
+    this.oauthClientSecret = oauthClientSecret;
+  }
+
+  public String getOauthFlow() {
+    return oauthFlow;
+  }
+
+  public void setOauthFlow(String oauthFlow) {
+    this.oauthFlow = oauthFlow;
   }
 
   public String getEventServiceAddress() {

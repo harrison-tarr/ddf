@@ -173,6 +173,10 @@
         <feature dependency="true">oidc-dependencies</feature>
         <bundle>mvn:ddf.security.core/security-core-impl/${project.version}</bundle>
         <bundle>mvn:ddf.security.core/security-core-services/${project.version}</bundle>
+        <feature>security-token-storage</feature>
+        <feature>cxf-rs-security-oauth2</feature>
+        <feature>security-handler-oidc</feature>
+        <bundle>mvn:ddf.platform.security/security-oauth-interceptor/${project.version}</bundle>
         <bundle>mvn:ddf.platform.security/security-rest-cxfwrapper/${project.version}</bundle>
         <feature>security-migratable</feature>
     </feature>
@@ -200,6 +204,12 @@
         <feature>parser-xml</feature>
         <feature>security-handler-api</feature>
         <bundle>mvn:ddf.security.pdp/security-pdp-authzrealm/${project.version}</bundle>
+    </feature>
+
+    <feature name="security-token-storage" version="${project.version}"
+             description="Oauth token storage api and file storage implementation.">
+        <bundle>mvn:ddf.security.storage/token-storage-api/${project.version}</bundle>
+        <bundle>mvn:ddf.security.storage/token-storage-impl/${project.version}</bundle>
     </feature>
 
     <feature name="security-pep-serviceauthz" version="${project.version}"

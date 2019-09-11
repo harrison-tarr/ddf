@@ -28,6 +28,7 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.3.0 http://karaf.apache.org/xmlns/features/v1.3.0">
 
+    <repository>mvn:ddf.features/cxf/${project.version}/xml/features</repository>
     <repository>mvn:ddf.features/utilities/${project.version}/xml/features</repository>
 
     <feature name="catalog-core-api" version="${project.version}"
@@ -391,7 +392,9 @@
              description="Catalog Security Filtering">
         <feature>catalog-core-api</feature>
         <feature>security-pdp-authz</feature>
+        <feature>security-token-storage</feature>
         <bundle>mvn:ddf.catalog.security/catalog-security-filter/${project.version}</bundle>
+        <bundle>mvn:ddf.catalog.plugin/catalog-plugin-oauth/${project.version}</bundle>
     </feature>
 
     <feature name="catalog-security-operationplugin" version="${project.version}"

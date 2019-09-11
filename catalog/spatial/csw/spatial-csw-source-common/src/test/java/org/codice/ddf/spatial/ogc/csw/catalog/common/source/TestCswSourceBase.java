@@ -126,6 +126,14 @@ public class TestCswSourceBase {
 
   protected static final String CONTENT_TYPE = "contentTypeProperty";
 
+  protected static final String DISCOVERY_URL = "http://example.com/oauth/auth";
+
+  protected static final String CLIENT_ID = "clientId";
+
+  protected static final String SECRET = "secret";
+
+  protected static final String FLOW = "code";
+
   protected static String[] metacardMappings;
 
   protected static final Integer POLL_INTERVAL = 100;

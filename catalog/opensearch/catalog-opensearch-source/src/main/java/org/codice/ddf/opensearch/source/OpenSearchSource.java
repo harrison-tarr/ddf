@@ -182,6 +182,16 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
 
   protected boolean allowRedirects = false;
 
+  protected boolean useOauth = false;
+
+  protected String oauthClientId = "";
+
+  protected String oauthDiscoveryUrl = "";
+
+  protected String oauthClientSecret = "";
+
+  protected String oauthFlow = "";
+
   protected BiConsumer<List<Element>, SourceResponse> foreignMarkupBiConsumer;
 
   /** flag indicating whether the source could be contacted */
@@ -303,7 +313,13 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
           connectionTimeout,
           receiveTimeout,
           username,
-          password);
+          password,
+          shortname,
+          useOauth,
+          oauthDiscoveryUrl,
+          oauthClientId,
+          oauthClientSecret,
+          oauthFlow);
     } else {
       return clientFactoryFactory.getSecureCxfClientFactory(
           url,
@@ -313,7 +329,13 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
           disableCnCheck,
           allowRedirects,
           connectionTimeout,
-          receiveTimeout);
+          receiveTimeout,
+          shortname,
+          useOauth,
+          oauthDiscoveryUrl,
+          oauthClientId,
+          oauthClientSecret,
+          oauthFlow);
     }
   }
 
@@ -989,6 +1011,51 @@ public class OpenSearchSource implements FederatedSource, ConfiguredService {
   public void setReceiveTimeout(Integer receiveTimeout) {
     this.receiveTimeout = receiveTimeout;
     updateFactory();
+  }
+
+  @Override
+  public boolean isUseOauth() {
+    return useOauth;
+  }
+
+  public void setUseOauth(boolean useOauth) {
+    this.useOauth = useOauth;
+  }
+
+  @Override
+  public String getOauthDiscoveryUrl() {
+    return oauthDiscoveryUrl;
+  }
+
+  public void setOauthDiscoveryUrl(String oauthDiscoveryUrl) {
+    this.oauthDiscoveryUrl = oauthDiscoveryUrl;
+  }
+
+  @Override
+  public String getOauthClientId() {
+    return oauthClientId;
+  }
+
+  public void setOauthClientId(String oauthClientId) {
+    this.oauthClientId = oauthClientId;
+  }
+
+  @Override
+  public String getOauthClientSecret() {
+    return oauthClientSecret;
+  }
+
+  public void setOauthClientSecret(String oauthClientSecret) {
+    this.oauthClientSecret = oauthClientSecret;
+  }
+
+  @Override
+  public String getOauthFlow() {
+    return oauthFlow;
+  }
+
+  public void setOauthFlow(String oauthFlow) {
+    this.oauthFlow = oauthFlow;
   }
 
   private WebClient newRestClient(

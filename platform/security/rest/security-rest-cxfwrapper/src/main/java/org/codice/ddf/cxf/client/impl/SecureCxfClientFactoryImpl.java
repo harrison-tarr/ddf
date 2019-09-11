@@ -68,6 +68,7 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
+import org.apache.logging.log4j.util.Strings;
 import org.apache.shiro.subject.Subject;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.codice.ddf.configuration.PropertyResolver;
@@ -76,6 +77,8 @@ import org.codice.ddf.cxf.client.SecureCxfClientFactory;
 import org.codice.ddf.cxf.paos.PaosInInterceptor;
 import org.codice.ddf.cxf.paos.PaosOutInterceptor;
 import org.codice.ddf.security.common.jaxrs.RestSecurity;
+import org.codice.ddf.security.oauth.interceptor.OAuthSecurity;
+import org.codice.ddf.security.oauth.interceptor.OauthOutInterceptor;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.slf4j.Logger;
@@ -93,6 +96,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SecureCxfClientFactoryImpl.class);
   public static final String HTTPS = "https";
+  public static final String CREDENTIAL_FLOW = "credential";
 
   private final JAXRSClientFactoryBean clientFactory;
 
@@ -128,6 +132,20 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
 
   private String sslProtocol;
 
+  private String sourceId;
+
+  private boolean useOauth;
+
+  private String discoveryUrl;
+
+  private String clientId;
+
+  private String clientSecret;
+
+  private String oauthFlow;
+
+  private OAuthSecurity oauthSecurity;
+
   static {
     OpenSAMLUtil.initSamlEngine();
     XMLObjectProviderRegistry xmlObjectProviderRegistry =
@@ -145,15 +163,32 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
   }
 
   /**
-   * @see #SecureCxfClientFactoryImpl(String, Class, java.util.List, Interceptor, boolean, boolean)
+   * @see #SecureCxfClientFactoryImpl(String, Class, java.util.List, Interceptor, boolean, boolean,
+   *     boolean, OAuthSecurity)
    */
-  public SecureCxfClientFactoryImpl(String endpointUrl, Class<T> interfaceClass) {
-    this(endpointUrl, interfaceClass, null, null, false, false);
+  public SecureCxfClientFactoryImpl(
+      String endpointUrl, Class<T> interfaceClass, OAuthSecurity oauthSecurity) {
+    this(endpointUrl, interfaceClass, null, null, false, false, false, oauthSecurity);
   }
 
   public SecureCxfClientFactoryImpl(
-      String endpointUrl, Class<T> interfaceClass, String username, String password) {
-    this(endpointUrl, interfaceClass, null, null, false, false, null, null, username, password);
+      String endpointUrl,
+      Class<T> interfaceClass,
+      String username,
+      String password,
+      OAuthSecurity oauthSecurity) {
+    this(
+        endpointUrl,
+        interfaceClass,
+        null,
+        null,
+        false,
+        false,
+        null,
+        null,
+        username,
+        password,
+        oauthSecurity);
   }
 
   public SecureCxfClientFactoryImpl(
@@ -162,7 +197,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       List<?> providers,
       Interceptor<? extends Message> interceptor,
       boolean disableCnCheck,
-      boolean allowRedirects) {
+      boolean allowRedirects,
+      OAuthSecurity oauthSecurity) {
     this(
         endpointUrl,
         interfaceClass,
@@ -170,7 +206,30 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
         interceptor,
         disableCnCheck,
         allowRedirects,
-        new PropertyResolver(endpointUrl));
+        new PropertyResolver(endpointUrl),
+        false,
+        oauthSecurity);
+  }
+
+  public SecureCxfClientFactoryImpl(
+      String endpointUrl,
+      Class<T> interfaceClass,
+      List<?> providers,
+      Interceptor<? extends Message> interceptor,
+      boolean disableCnCheck,
+      boolean allowRedirects,
+      boolean useOauth,
+      OAuthSecurity oauthSecurity) {
+    this(
+        endpointUrl,
+        interfaceClass,
+        providers,
+        interceptor,
+        disableCnCheck,
+        allowRedirects,
+        new PropertyResolver(endpointUrl),
+        useOauth,
+        oauthSecurity);
   }
 
   /**
@@ -194,7 +253,45 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       Interceptor<? extends Message> interceptor,
       boolean disableCnCheck,
       boolean allowRedirects,
-      PropertyResolver propertyResolver) {
+      PropertyResolver propertyResolver,
+      OAuthSecurity oauthSecurity) {
+
+    this(
+        endpointUrl,
+        interfaceClass,
+        providers,
+        interceptor,
+        disableCnCheck,
+        allowRedirects,
+        propertyResolver,
+        false,
+        oauthSecurity);
+  }
+
+  /**
+   * Constructs a factory that will return security-aware cxf clients. Once constructed, use the
+   * getClient* methods to retrieve a fresh client with the same configuration. Providing {@link
+   * WebClient} to interfaceClass will create a generic web client.
+   *
+   * <p>This factory can and should be cached. The clients it constructs should not be.
+   *
+   * @param endpointUrl the remote url to connect to
+   * @param interfaceClass an interface representing the resource at the remote url
+   * @param providers optional list of providers to further configure the client
+   * @param interceptor optional message interceptor for the client
+   * @param disableCnCheck disable ssl check for common name / host name match
+   * @param allowRedirects allow this client to follow redirects
+   */
+  public SecureCxfClientFactoryImpl(
+      String endpointUrl,
+      Class<T> interfaceClass,
+      List<?> providers,
+      Interceptor<? extends Message> interceptor,
+      boolean disableCnCheck,
+      boolean allowRedirects,
+      PropertyResolver propertyResolver,
+      boolean useOauth,
+      OAuthSecurity oauthSecurity) {
     if (StringUtils.isEmpty(endpointUrl) || interfaceClass == null) {
       throw new IllegalArgumentException(
           "Called without a valid URL, will not be able to connect.");
@@ -210,6 +307,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
     this.interfaceClass = interfaceClass;
     this.disableCnCheck = disableCnCheck;
     this.allowRedirects = allowRedirects;
+    this.oauthSecurity = oauthSecurity;
 
     JAXRSClientFactoryBean jaxrsClientFactoryBean = new JAXRSClientFactoryBean();
     jaxrsClientFactoryBean.setServiceClass(interfaceClass);
@@ -218,9 +316,17 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
     jaxrsClientFactoryBean.getInInterceptors().add(new LoggingInInterceptor());
     jaxrsClientFactoryBean.getOutInterceptors().add(new LoggingOutInterceptor());
 
-    if (!basicAuth && StringUtils.startsWithIgnoreCase(endpointUrl, HTTPS)) {
+    if (StringUtils.startsWithIgnoreCase(endpointUrl, HTTPS)) {
+
       jaxrsClientFactoryBean.getInInterceptors().add(new PaosInInterceptor(Phase.RECEIVE));
-      jaxrsClientFactoryBean.getOutInterceptors().add(new PaosOutInterceptor(Phase.POST_LOGICAL));
+
+      if (useOauth) {
+        jaxrsClientFactoryBean
+            .getOutInterceptors()
+            .add(new OauthOutInterceptor(Phase.PRE_PROTOCOL));
+      } else {
+        jaxrsClientFactoryBean.getOutInterceptors().add(new PaosOutInterceptor(Phase.POST_LOGICAL));
+      }
     }
 
     if (CollectionUtils.isNotEmpty(providers)) {
@@ -231,6 +337,7 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       jaxrsClientFactoryBean.getInInterceptors().add(interceptor);
     }
 
+    this.useOauth = useOauth;
     this.clientFactory = jaxrsClientFactoryBean;
   }
 
@@ -259,13 +366,78 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       boolean disableCnCheck,
       boolean allowRedirects,
       Integer connectionTimeout,
-      Integer receiveTimeout) {
+      Integer receiveTimeout,
+      String sourceId,
+      boolean useOauth,
+      String discoveryUrl,
+      String clientId,
+      String clientSecret,
+      String oauthFlow,
+      OAuthSecurity oauthSecurity) {
 
-    this(endpointUrl, interfaceClass, providers, interceptor, disableCnCheck, allowRedirects);
+    this(
+        endpointUrl,
+        interfaceClass,
+        providers,
+        interceptor,
+        disableCnCheck,
+        allowRedirects,
+        useOauth,
+        oauthSecurity);
 
     this.connectionTimeout = connectionTimeout;
-
     this.receiveTimeout = receiveTimeout;
+    this.sourceId = sourceId;
+    this.discoveryUrl = discoveryUrl;
+    this.clientId = clientId;
+    this.clientSecret = clientSecret;
+    this.oauthFlow = oauthFlow;
+  }
+
+  /**
+   * Constructs a factory that will return security-aware cxf clients. Once constructed, use the
+   * getClient* methods to retrieve a fresh client with the same configuration. Providing {@link
+   * WebClient} to interfaceClass will create a generic web client.
+   *
+   * <p>This factory can and should be cached. The clients it constructs should not be.
+   *
+   * @param endpointUrl the remote url to connect to
+   * @param interfaceClass an interface representing the resource at the remote url
+   * @param providers optional list of providers to further configure the client
+   * @param interceptor optional message interceptor for the client
+   * @param disableCnCheck disable ssl check for common name / host name match
+   * @param allowRedirects allow this client to follow redirects
+   * @param connectionTimeout timeout for the connection
+   * @param receiveTimeout timeout for receiving responses
+   */
+  @SuppressWarnings("squid:S00107")
+  public SecureCxfClientFactoryImpl(
+      String endpointUrl,
+      Class<T> interfaceClass,
+      List<?> providers,
+      Interceptor<? extends Message> interceptor,
+      boolean disableCnCheck,
+      boolean allowRedirects,
+      Integer connectionTimeout,
+      Integer receiveTimeout,
+      OAuthSecurity oauthSecurity) {
+
+    this(
+        endpointUrl,
+        interfaceClass,
+        providers,
+        interceptor,
+        disableCnCheck,
+        allowRedirects,
+        connectionTimeout,
+        receiveTimeout,
+        null,
+        false,
+        null,
+        null,
+        null,
+        null,
+        oauthSecurity);
   }
 
   /**
@@ -297,17 +469,86 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       Integer connectionTimeout,
       Integer receiveTimeout,
       ClientKeyInfo keyInfo,
-      String sslProtocol) {
+      String sslProtocol,
+      String sourceId,
+      boolean useOauth,
+      String discoveryUrl,
+      String clientId,
+      String clientSecret,
+      String oauthFlow,
+      OAuthSecurity oauthSecurity) {
 
-    this(endpointUrl, interfaceClass, providers, interceptor, disableCnCheck, allowRedirects);
+    this(
+        endpointUrl,
+        interfaceClass,
+        providers,
+        interceptor,
+        disableCnCheck,
+        allowRedirects,
+        useOauth,
+        oauthSecurity);
 
     this.connectionTimeout = connectionTimeout;
-
     this.receiveTimeout = receiveTimeout;
-
     this.keyInfo = keyInfo;
-
     this.sslProtocol = sslProtocol;
+    this.sourceId = sourceId;
+    this.discoveryUrl = discoveryUrl;
+    this.clientId = clientId;
+    this.clientSecret = clientSecret;
+    this.oauthFlow = oauthFlow;
+  }
+
+  /**
+   * Constructs a factory that will return security-aware cxf clients. Once constructed, use the
+   * getClient* methods to retrieve a fresh client with the same configuration. Providing {@link
+   * WebClient} to interfaceClass will create a generic web client.
+   *
+   * <p>This factory can and should be cached. The clients it constructs should not be.
+   *
+   * @param endpointUrl the remote url to connect to
+   * @param interfaceClass an interface representing the resource at the remote url
+   * @param providers optional list of providers to further configure the client
+   * @param interceptor optional message interceptor for the client
+   * @param disableCnCheck disable ssl check for common name / host name match
+   * @param allowRedirects allow this client to follow redirects
+   * @param connectionTimeout timeout for the connection
+   * @param receiveTimeout timeout for receiving responses
+   * @param keyInfo client key info for 2-way ssl
+   * @param sslProtocol SSL protocol to use (e.g. TLSv1.2)
+   */
+  @SuppressWarnings("squid:S00107")
+  public SecureCxfClientFactoryImpl(
+      String endpointUrl,
+      Class<T> interfaceClass,
+      List<?> providers,
+      Interceptor<? extends Message> interceptor,
+      boolean disableCnCheck,
+      boolean allowRedirects,
+      Integer connectionTimeout,
+      Integer receiveTimeout,
+      ClientKeyInfo keyInfo,
+      String sslProtocol,
+      OAuthSecurity oauthSecurity) {
+
+    this(
+        endpointUrl,
+        interfaceClass,
+        providers,
+        interceptor,
+        disableCnCheck,
+        allowRedirects,
+        connectionTimeout,
+        receiveTimeout,
+        keyInfo,
+        sslProtocol,
+        null,
+        false,
+        null,
+        null,
+        null,
+        null,
+        oauthSecurity);
   }
 
   /**
@@ -341,7 +582,8 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
       Integer connectionTimeout,
       Integer receiveTimeout,
       String username,
-      String password) {
+      String password,
+      OAuthSecurity oauthSecurity) {
 
     this(
         endpointUrl,
@@ -351,7 +593,74 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
         disableCnCheck,
         allowRedirects,
         connectionTimeout,
-        receiveTimeout);
+        receiveTimeout,
+        username,
+        password,
+        null,
+        false,
+        null,
+        null,
+        null,
+        null,
+        oauthSecurity);
+  }
+
+  /**
+   * Constructs a factory that will return security-aware cxf clients. Once constructed, use the
+   * getClient* methods to retrieve a fresh client with the same configuration. Providing {@link
+   * WebClient} to interfaceClass will create a generic web client.
+   *
+   * <p>This factory can and should be cached. The clients it constructs should not be.
+   *
+   * <p>This constructor represents a quick fix only.
+   *
+   * @param endpointUrl the remote url to connect to
+   * @param interfaceClass an interface representing the resource at the remote url
+   * @param providers optional list of providers to further configure the client
+   * @param interceptor optional message interceptor for the client
+   * @param disableCnCheck disable ssl check for common name / host name match
+   * @param allowRedirects allow this client to follow redirects
+   * @param connectionTimeout timeout for the connection
+   * @param receiveTimeout timeout for receiving responses
+   * @param username a String representing the username
+   * @param password a String representing a password
+   */
+  @SuppressWarnings("squid:S00107")
+  public SecureCxfClientFactoryImpl(
+      String endpointUrl,
+      Class<T> interfaceClass,
+      List<?> providers,
+      Interceptor<? extends Message> interceptor,
+      boolean disableCnCheck,
+      boolean allowRedirects,
+      Integer connectionTimeout,
+      Integer receiveTimeout,
+      String username,
+      String password,
+      String sourceId,
+      boolean useOauth,
+      String discoveryUrl,
+      String clientId,
+      String clientSecret,
+      String oauthFlow,
+      OAuthSecurity oauthSecurity) {
+
+    this(
+        endpointUrl,
+        interfaceClass,
+        providers,
+        interceptor,
+        disableCnCheck,
+        allowRedirects,
+        connectionTimeout,
+        receiveTimeout,
+        sourceId,
+        useOauth,
+        discoveryUrl,
+        clientId,
+        clientSecret,
+        oauthFlow,
+        oauthSecurity);
 
     this.clientFactory.setPassword(password);
     this.clientFactory.setUsername(username);
@@ -387,11 +696,61 @@ public class SecureCxfClientFactoryImpl<T> implements SecureCxfClientFactory<T> 
 
               T newClient = getNewClient();
 
-              if (!basicAuth && StringUtils.startsWithIgnoreCase(asciiString, HTTPS)) {
-                if (subject instanceof ddf.security.Subject) {
-                  RestSecurity.setSubjectOnClient(
-                      (ddf.security.Subject) subject, WebClient.client(newClient));
+              if (useOauth) {
+                if (CREDENTIAL_FLOW.equals(oauthFlow)
+                    && Strings.isNotBlank(clientId)
+                    && Strings.isNotBlank(clientSecret)
+                    && Strings.isNotBlank(discoveryUrl)) {
+                  oauthSecurity.setSystemTokenOnClient(
+                      WebClient.client(newClient), clientId, clientSecret, discoveryUrl);
+                } else {
+                  oauthSecurity.setUserTokenOnClient(
+                      WebClient.client(newClient), (ddf.security.Subject) subject, sourceId);
                 }
+              } else if (!basicAuth
+                  && StringUtils.startsWithIgnoreCase(asciiString, HTTPS)
+                  && subject instanceof ddf.security.Subject) {
+                RestSecurity.setSubjectOnClient(
+                    (ddf.security.Subject) subject, WebClient.client(newClient));
+              }
+              auditRemoteConnection(asciiString);
+
+              return newClient;
+            });
+  }
+
+  /**
+   * Clients produced by this method will be secured with two-way ssl and the provided security
+   * subject.
+   *
+   * <p>The returned client should NOT be reused between requests! This method should be called for
+   * each new request in order to ensure that the security token is up-to-date each time.
+   */
+  public final T getClientForSystemSubject(Subject subject) {
+    final java.lang.SecurityManager security = System.getSecurityManager();
+
+    if (security != null) {
+      security.checkPermission(CREATE_CLIENT_PERMISSION);
+    }
+
+    return AccessController.doPrivileged(
+        (PrivilegedAction<T>)
+            () -> {
+              String asciiString = clientFactory.getAddress();
+
+              T newClient = getNewClient();
+
+              if (useOauth
+                  && Strings.isNotBlank(clientId)
+                  && Strings.isNotBlank(clientSecret)
+                  && Strings.isNotBlank(discoveryUrl)) {
+                oauthSecurity.setSystemTokenOnClient(
+                    WebClient.client(newClient), clientId, clientSecret, discoveryUrl);
+              } else if (!basicAuth
+                  && StringUtils.startsWithIgnoreCase(asciiString, HTTPS)
+                  && subject instanceof ddf.security.Subject) {
+                RestSecurity.setSubjectOnClient(
+                    (ddf.security.Subject) subject, WebClient.client(newClient));
               }
 
               auditRemoteConnection(asciiString);

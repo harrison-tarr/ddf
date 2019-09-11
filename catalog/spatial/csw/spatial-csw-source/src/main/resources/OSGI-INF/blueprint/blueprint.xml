@@ -93,6 +93,11 @@
             <property name="metacardTypes" ref="metacardTypes"/>
             <property name="eventServiceAddress" value=""/>
             <property name="registerForEvents" value="false"/>
+            <property name="useOauth" value="false"/>
+            <property name="oauthDiscoveryUrl" value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
+            <property name="oauthClientId" value="ddf-client"/>
+            <property name="oauthClientSecret" value="secret"/>
+            <property name="oauthFlow" value="code"/>
             <argument ref="encryptionService"/>
             <argument ref="clientFactoryFactory"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
@@ -140,6 +145,11 @@
             <property name="receiveTimeout" value="60000"/>
             <property name="securityManager" ref="securityManager"/>
             <property name="metacardTypes" ref="metacardTypes"/>
+            <property name="useOauth" value="false"/>
+            <property name="oauthDiscoveryUrl" value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
+            <property name="oauthClientId" value="ddf-client"/>
+            <property name="oauthClientSecret" value="secret"/>
+            <property name="oauthFlow" value="code"/>
             <argument ref="encryptionService"/>
             <argument ref="clientFactoryFactory"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
@@ -185,6 +195,11 @@
             <property name="metacardTypes" ref="metacardTypes"/>
             <property name="eventServiceAddress" value=""/>
             <property name="registerForEvents" value="false"/>
+            <property name="useOauth" value="false"/>
+            <property name="oauthDiscoveryUrl" value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
+            <property name="oauthClientId" value="ddf-client"/>
+            <property name="oauthClientSecret" value="secret"/>
+            <property name="oauthFlow" value="code"/>
             <argument ref="encryptionService"/>
             <argument ref="clientFactoryFactory"/>
             <cm:managed-properties persistent-id="" update-strategy="component-managed"
@@ -230,6 +245,11 @@
             <property name="metacardTypes" ref="metacardTypes"/>
             <property name="eventServiceAddress" value=""/>
             <property name="registerForEvents" value="false"/>
+            <property name="useOauth" value="false"/>
+            <property name="oauthDiscoveryUrl" value="https://localhost:8443/auth/realms/master/.well-known/openid-configuration"/>
+            <property name="oauthClientId" value="ddf-client"/>
+            <property name="oauthClientSecret" value="secret"/>
+            <property name="oauthFlow" value="code"/>
             <argument ref="encryptionService"/>
             <argument ref="clientFactoryFactory"/>
             <!-- CSW Store Properties -->
