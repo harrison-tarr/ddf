@@ -40,6 +40,7 @@ import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.plugin.OAuthPluginException;
 import ddf.catalog.plugin.PreFederatedQueryPlugin;
 import ddf.catalog.plugin.StopProcessingException;
+import ddf.catalog.source.OAuthFederatedSource;
 import ddf.catalog.source.Source;
 import ddf.security.Subject;
 import ddf.security.SubjectUtils;
@@ -121,7 +122,12 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
    */
   @Override
   public QueryRequest process(Source source, QueryRequest input) throws StopProcessingException {
-    if (!source.isUseOauth() || !CODE_FLOW.equals(source.getOauthFlow())) {
+    if (!(source instanceof OAuthFederatedSource)) {
+      return input;
+    }
+
+    OAuthFederatedSource oauthSource = (OAuthFederatedSource) source;
+    if (!oauthSource.isUseOauth() || !CODE_FLOW.equals(oauthSource.getOauthFlow())) {
       return input;
     }
 
@@ -137,40 +143,41 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
       userId = SubjectUtils.getName(subject);
     }
 
-    TokenInformation.TokenEntry tokenEntry = tokenStorage.read(userId, source.getId());
+    TokenInformation.TokenEntry tokenEntry = tokenStorage.read(userId, oauthSource.getId());
 
     OIDCProviderMetadata metadata;
     try {
       metadata =
           OIDCProviderMetadata.parse(
               resourceRetriever
-                  .retrieveResource(new URL(source.getOauthDiscoveryUrl()))
+                  .retrieveResource(new URL(oauthSource.getOauthDiscoveryUrl()))
                   .getContent());
     } catch (OAuthServiceException | IOException | ParseException e) {
       LOGGER.error(
-          "Unable to retrieve OAuth provider's metadata for the {} source.", source.getId());
+          "Unable to retrieve OAuth provider's metadata for the {} source.", oauthSource.getId());
       throw new StopProcessingException("Unable to retrieve OAuth provider's metadata.");
     }
 
     if (tokenEntry == null) {
       // See if the user already logged in to the oauth provider for a different source
-      findExistingTokens(source, userId);
-      throw createNoAuthException(source, userId, metadata, "the user's tokens where no found.");
+      findExistingTokens(oauthSource, userId);
+      throw createNoAuthException(
+          oauthSource, userId, metadata, "the user's tokens were not found.");
     }
 
     // Verifies that the stored oauth provider is the same one as the one being queried in other
     // words the same OAuth provider is being used by the source (it is not an outdated token)
-    if (!source.getOauthDiscoveryUrl().equals(tokenEntry.getDiscoveryUrl())) {
+    if (!oauthSource.getOauthDiscoveryUrl().equals(tokenEntry.getDiscoveryUrl())) {
       // the discoveryUrl is different from the one stored - the user must login
-      tokenStorage.delete(userId, source.getId());
+      tokenStorage.delete(userId, oauthSource.getId());
       throw createNoAuthException(
-          source,
+          oauthSource,
           userId,
           metadata,
           "the oauth provider information has been changed and is different from the one stored.");
     }
 
-    verifyAccessToken(source, userId, tokenEntry, metadata);
+    verifyAccessToken(oauthSource, userId, tokenEntry, metadata);
     return input;
   }
 
@@ -179,7 +186,7 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
    * new access and refresh tokens in the token storage.
    */
   private void verifyAccessToken(
-      Source source,
+      OAuthFederatedSource oauthSource,
       String userId,
       TokenInformation.TokenEntry tokenEntry,
       OIDCProviderMetadata metadata)
@@ -194,10 +201,10 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
     String refreshToken = tokenEntry.getRefreshToken();
     ClientAccessToken clientAccessToken;
     try {
-      clientAccessToken = refreshTokens(refreshToken, source, userId, metadata);
+      clientAccessToken = refreshTokens(refreshToken, oauthSource, userId, metadata);
     } catch (OAuthServiceException e) {
       throw createNoAuthException(
-          source, userId, metadata, "error refreshing token. " + e.getMessage());
+          oauthSource, userId, metadata, "error refreshing token. " + e.getMessage());
     }
 
     String newAccessToken = clientAccessToken.getTokenKey();
@@ -205,7 +212,11 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
 
     boolean success =
         tokenStorage.create(
-            userId, source.getId(), newAccessToken, newRefreshToken, source.getOauthDiscoveryUrl());
+            userId,
+            oauthSource.getId(),
+            newAccessToken,
+            newRefreshToken,
+            oauthSource.getOauthDiscoveryUrl());
     if (!success) {
       LOGGER.warn("Error updating the token information.");
     }
@@ -217,25 +228,26 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
    * source exception will be thrown so the user can authorize to query the new source instead of
    * logging in.
    */
-  private void findExistingTokens(Source source, String userId) throws StopProcessingException {
+  private void findExistingTokens(OAuthFederatedSource oauthSource, String userId)
+      throws StopProcessingException {
     TokenInformation tokenInformation = tokenStorage.read(userId);
     if (tokenInformation == null
-        || !tokenInformation.getDiscoveryUrls().contains(source.getOauthDiscoveryUrl())) {
+        || !tokenInformation.getDiscoveryUrls().contains(oauthSource.getOauthDiscoveryUrl())) {
       return;
     }
 
     LOGGER.debug(
         "Unable to process query. The user needs to authorize to query the {} source.",
-        source.getId());
+        oauthSource.getId());
 
     try {
       URIBuilder uriBuilder = new URIBuilder(AUTHORIZE_SOURCE_ENDPOINT);
       uriBuilder.addParameter(USER_ID, userId);
-      uriBuilder.addParameter(SOURCE_ID, source.getId());
-      uriBuilder.addParameter(DISCOVERY_URL, source.getOauthDiscoveryUrl());
+      uriBuilder.addParameter(SOURCE_ID, oauthSource.getId());
+      uriBuilder.addParameter(DISCOVERY_URL, oauthSource.getOauthDiscoveryUrl());
 
       String url = uriBuilder.build().toURL().toString();
-      throw new OAuthPluginException(source.getId(), url, AUTH_SOURCE);
+      throw new OAuthPluginException(oauthSource.getId(), url, AUTH_SOURCE);
 
     } catch (URISyntaxException | MalformedURLException e) {
       LOGGER.warn("Unable to construct authorization URL.");
@@ -260,15 +272,18 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
    * Attempts to refresh the user's access token
    *
    * @param refreshToken refresh token used to refresh access token
-   * @param source source being queried
+   * @param oauthSource source being queried
    * @throws OAuthPluginException if the access token could not be renewed
    */
   private ClientAccessToken refreshTokens(
-      String refreshToken, Source source, String userId, OIDCProviderMetadata metadata)
+      String refreshToken,
+      OAuthFederatedSource oauthSource,
+      String userId,
+      OIDCProviderMetadata metadata)
       throws StopProcessingException {
     if (refreshToken == null) {
       throw createNoAuthException(
-          source, userId, metadata, "unable to find the user's refresh token.");
+          oauthSource, userId, metadata, "unable to find the user's refresh token.");
     }
 
     ClientAccessToken clientAccessToken;
@@ -276,22 +291,22 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
       LOGGER.debug("Attempting to refresh the user's access token.");
 
       WebClient webClient = createWebclient(metadata.getTokenEndpointURI().toURL().toString());
-      Consumer consumer = new Consumer(source.getOauthClientId(), source.getOauthClientSecret());
+      Consumer consumer =
+          new Consumer(oauthSource.getOauthClientId(), oauthSource.getOauthClientSecret());
       AccessTokenGrant accessTokenGrant = new RefreshTokenGrant(refreshToken);
       clientAccessToken = OAuthClientUtils.getAccessToken(webClient, consumer, accessTokenGrant);
     } catch (OAuthServiceException | MalformedURLException e) {
-      throw createNoAuthException(source, userId, metadata, "failed to refresh access token.");
+      throw createNoAuthException(oauthSource, userId, metadata, "failed to refresh access token.");
     }
 
     // Validate new access token
     try {
       AccessToken accessToken = convertCxfAccessTokenToNimbusdsToken(clientAccessToken);
-
       OidcTokenValidator.validateAccessToken(accessToken, null, resourceRetriever, metadata, null);
       return clientAccessToken;
     } catch (OidcValidationException e) {
       throw createNoAuthException(
-          source, userId, metadata, "failed to validate refreshed access token.");
+          oauthSource, userId, metadata, "failed to validate refreshed access token.");
     }
   }
 
@@ -317,34 +332,34 @@ public class OAuthPlugin implements PreFederatedQueryPlugin {
    * TokenStorage}'s state map which will hold the user's and OAuth provider's information.
    */
   private OAuthPluginException createNoAuthException(
-      Source source, String userId, OIDCProviderMetadata metadata, String reason)
+      OAuthFederatedSource oauthSource, String userId, OIDCProviderMetadata metadata, String reason)
       throws StopProcessingException {
 
     LOGGER.debug(
         "Unable to process query. The {} source requires OAuth 2.0 but {}.",
-        source.getId(),
+        oauthSource.getId(),
         reason);
 
     String state = UUID.randomUUID().toString();
     Map<String, Object> stateMap = new HashMap<>();
     stateMap.put(USER_ID, userId);
-    stateMap.put(SOURCE_ID, source.getId());
-    stateMap.put(CLIENT_ID, source.getOauthClientId());
-    stateMap.put(SECRET, source.getOauthClientSecret());
-    stateMap.put(DISCOVERY_URL, source.getOauthDiscoveryUrl());
+    stateMap.put(SOURCE_ID, oauthSource.getId());
+    stateMap.put(CLIENT_ID, oauthSource.getOauthClientId());
+    stateMap.put(SECRET, oauthSource.getOauthClientSecret());
+    stateMap.put(DISCOVERY_URL, oauthSource.getOauthDiscoveryUrl());
     stateMap.put(EXPIRES_AT, Instant.now().plus(STATE_EXP, ChronoUnit.MINUTES).getEpochSecond());
     tokenStorage.getStateMap().put(state, stateMap);
 
     try {
       URIBuilder uriBuilder = new URIBuilder(metadata.getAuthorizationEndpointURI());
       uriBuilder.addParameter(RESPONSE_TYPE, CODE_FLOW);
-      uriBuilder.addParameter(CLIENT_ID_PARAM, source.getOauthClientId());
+      uriBuilder.addParameter(CLIENT_ID_PARAM, oauthSource.getOauthClientId());
       uriBuilder.addParameter(SCOPE, OPENID_SCOPE);
       uriBuilder.addParameter(REDIRECT_URI, OAUTH_REDIRECT_URL);
       uriBuilder.addParameter(STATE, state);
 
       String redirectUrl = uriBuilder.build().toURL().toString();
-      return new OAuthPluginException(source.getId(), redirectUrl, NO_AUTH);
+      return new OAuthPluginException(oauthSource.getId(), redirectUrl, NO_AUTH);
 
     } catch (URISyntaxException | IOException e) {
       LOGGER.debug("Unable to construct redirect URL.");

@@ -40,7 +40,7 @@ import ddf.catalog.resource.ResourceNotFoundException;
 import ddf.catalog.resource.ResourceNotSupportedException;
 import ddf.catalog.resource.ResourceReader;
 import ddf.catalog.service.ConfiguredService;
-import ddf.catalog.source.FederatedSource;
+import ddf.catalog.source.OAuthFederatedSource;
 import ddf.catalog.source.SourceMonitor;
 import ddf.catalog.source.UnsupportedQueryException;
 import ddf.catalog.transform.CatalogTransformerException;
@@ -107,7 +107,7 @@ import org.slf4j.LoggerFactory;
  * Federated site that talks via OpenSearch to the DDF platform. Communication is usually performed
  * via https which requires a keystore and trust store to be provided.
  */
-public class OpenSearchSource implements FederatedSource, ConfiguredService {
+public class OpenSearchSource implements OAuthFederatedSource, ConfiguredService {
 
   private static final String COULD_NOT_RETRIEVE_RESOURCE_MESSAGE = "Could not retrieve resource";
 

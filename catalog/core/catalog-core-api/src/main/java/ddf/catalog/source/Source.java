@@ -54,31 +54,6 @@ public interface Source extends Describable {
    */
   public boolean isAvailable(SourceMonitor callback);
 
-  /** @return true if the source is configured to use OAuth and false otherwise. */
-  default boolean isUseOauth() {
-    return false;
-  }
-
-  /** @return the configured Oauth provider's url */
-  default String getOauthDiscoveryUrl() {
-    return "";
-  }
-
-  /** @return the configured Oauth provider's url */
-  default String getOauthClientId() {
-    return "";
-  }
-
-  /** @return the configured Oauth provider's url */
-  default String getOauthClientSecret() {
-    return "";
-  }
-
-  /** @return the configured flow to use for Oauth federation */
-  default String getOauthFlow() {
-    return "";
-  }
-
   /**
    * @param request the query to execute
    * @return a {@link SourceResponse} with query results and query response details

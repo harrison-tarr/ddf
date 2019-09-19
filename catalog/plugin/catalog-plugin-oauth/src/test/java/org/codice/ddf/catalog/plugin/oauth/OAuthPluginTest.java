@@ -49,7 +49,7 @@ import com.nimbusds.jose.util.Resource;
 import com.nimbusds.jose.util.ResourceRetriever;
 import ddf.catalog.operation.QueryRequest;
 import ddf.catalog.plugin.OAuthPluginException;
-import ddf.catalog.source.Source;
+import ddf.catalog.source.OAuthFederatedSource;
 import ddf.security.Subject;
 import ddf.security.assertion.SecurityAssertion;
 import java.io.ByteArrayInputStream;
@@ -145,7 +145,7 @@ public class OAuthPluginTest {
   @Test
   public void testProcessCredentialFlow() throws Exception {
     QueryRequest input = mock(QueryRequest.class);
-    Source source = mock(Source.class);
+    OAuthFederatedSource source = mock(OAuthFederatedSource.class);
     when(source.isUseOauth()).thenReturn(true);
     when(source.getOauthFlow()).thenReturn("credential");
 
@@ -159,7 +159,7 @@ public class OAuthPluginTest {
     QueryRequest input = mock(QueryRequest.class);
     when(input.getProperties()).thenReturn(ImmutableMap.of(SECURITY_SUBJECT, subject));
 
-    Source source = mock(Source.class);
+    OAuthFederatedSource source = mock(OAuthFederatedSource.class);
     when(source.isUseOauth()).thenReturn(true);
     when(source.getOauthDiscoveryUrl()).thenReturn(METADATA_ENDPOINT);
     when(source.getOauthClientId()).thenReturn(DDF_CLIENT);
@@ -184,7 +184,7 @@ public class OAuthPluginTest {
     QueryRequest input = mock(QueryRequest.class);
     when(input.getProperties()).thenReturn(ImmutableMap.of(SECURITY_SUBJECT, subject));
 
-    Source source = mock(Source.class);
+    OAuthFederatedSource source = mock(OAuthFederatedSource.class);
     when(source.isUseOauth()).thenReturn(true);
     when(source.getOauthDiscoveryUrl()).thenReturn(METADATA_ENDPOINT);
     when(source.getOauthClientId()).thenReturn(DDF_CLIENT);
@@ -227,7 +227,7 @@ public class OAuthPluginTest {
     QueryRequest input = mock(QueryRequest.class);
     when(input.getProperties()).thenReturn(ImmutableMap.of(SECURITY_SUBJECT, subject));
 
-    Source source = mock(Source.class);
+    OAuthFederatedSource source = mock(OAuthFederatedSource.class);
     when(source.isUseOauth()).thenReturn(true);
     when(source.getOauthDiscoveryUrl()).thenReturn(METADATA_ENDPOINT);
     when(source.getOauthClientId()).thenReturn(DDF_CLIENT);
@@ -282,7 +282,7 @@ public class OAuthPluginTest {
     QueryRequest input = mock(QueryRequest.class);
     when(input.getProperties()).thenReturn(ImmutableMap.of(SECURITY_SUBJECT, subject));
 
-    Source source = mock(Source.class);
+    OAuthFederatedSource source = mock(OAuthFederatedSource.class);
     when(source.isUseOauth()).thenReturn(true);
     when(source.getOauthDiscoveryUrl()).thenReturn(METADATA_ENDPOINT);
     when(source.getOauthClientId()).thenReturn(DDF_CLIENT);
@@ -341,7 +341,7 @@ public class OAuthPluginTest {
     QueryRequest input = mock(QueryRequest.class);
     when(input.getProperties()).thenReturn(ImmutableMap.of(SECURITY_SUBJECT, subject));
 
-    Source source = mock(Source.class);
+    OAuthFederatedSource source = mock(OAuthFederatedSource.class);
     when(source.isUseOauth()).thenReturn(true);
     when(source.getOauthDiscoveryUrl()).thenReturn(METADATA_ENDPOINT);
     when(source.getOauthClientId()).thenReturn(DDF_CLIENT);
@@ -386,7 +386,7 @@ public class OAuthPluginTest {
     QueryRequest input = mock(QueryRequest.class);
     when(input.getProperties()).thenReturn(ImmutableMap.of(SECURITY_SUBJECT, subject));
 
-    Source source = mock(Source.class);
+    OAuthFederatedSource source = mock(OAuthFederatedSource .class);
     when(source.isUseOauth()).thenReturn(true);
     when(source.getOauthDiscoveryUrl()).thenReturn(METADATA_ENDPOINT);
     when(source.getOauthClientId()).thenReturn(DDF_CLIENT);
