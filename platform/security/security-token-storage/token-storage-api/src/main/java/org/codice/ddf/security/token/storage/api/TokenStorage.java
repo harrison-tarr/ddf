@@ -43,9 +43,10 @@ public interface TokenStorage {
    * @param accessToken the user's access token
    * @param refreshToken the user's refresh token
    * @param discoveryUrl the metadata url of the Oauth provider protecting the source
-   * @return true if the storage is successful, false otherwise
+   * @return int HTTP code representing the response of the create. ie 200 for success, 400 for bad
+   *     request, 500 for internal error
    */
-  boolean create(
+  int create(
       String userId, String sourceId, String accessToken, String refreshToken, String discoveryUrl);
 
   /**

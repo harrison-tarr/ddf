@@ -386,7 +386,7 @@ public class OAuthPluginTest {
     QueryRequest input = mock(QueryRequest.class);
     when(input.getProperties()).thenReturn(ImmutableMap.of(SECURITY_SUBJECT, subject));
 
-    OAuthFederatedSource source = mock(OAuthFederatedSource .class);
+    OAuthFederatedSource source = mock(OAuthFederatedSource.class);
     when(source.isUseOauth()).thenReturn(true);
     when(source.getOauthDiscoveryUrl()).thenReturn(METADATA_ENDPOINT);
     when(source.getOauthClientId()).thenReturn(DDF_CLIENT);
